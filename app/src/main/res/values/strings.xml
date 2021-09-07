@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Magic Note</string>
+    <string name="title_activity_magic_note">MagicNoteActivity</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Magic note</string>
+    <string name="nav_header_subtitle">dovietphuc0131@gmail.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="processing">Processing</string>
+    <string name="archive">Archive</string>
+    <string name="recycle_bin">Recycle bin</string>
+    <string name="edit_note">Edit note</string>
+    <string name="title">Title</string>
+    <string name="back_up">Back up</string>
+    <string name="undo">Undo</string>
+    <string name="redo">Redo</string>
+    <string name="note">Note</string>
+    <string name="add_checkbox">Add checkbox</string>
+    <string name="text_here">Text here...</string>
+    <string name="checkbox_item">Checkbox item</string>
+</resources>

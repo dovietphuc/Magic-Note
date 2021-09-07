@@ -1,0 +1,53 @@
+package phucdv.android.magicnote.data;
+
+import android.content.Context;
+import android.os.AsyncTask;
+
+import phucdv.android.magicnote.data.checkboxitem.CheckboxItem;
+import phucdv.android.magicnote.data.checkboxitem.CheckboxItemDao;
+import phucdv.android.magicnote.data.noteitem.Note;
+import phucdv.android.magicnote.data.noteitem.NoteDao;
+import phucdv.android.magicnote.data.textitem.TextItem;
+import phucdv.android.magicnote.data.textitem.TextItemDao;
+import phucdv.android.magicnote.util.Constants;
+
+import androidx.annotation.NonNull;
+import androidx.room.Database;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
+import androidx.sqlite.db.SupportSQLiteDatabase;
+
+@Database(entities = {
+        Note.class,
+        TextItem.class,
+        CheckboxItem.class
+}, version = 4,  exportSchema = false)
+public abstract class NoteRoomDatabase extends RoomDatabase {
+    public abstract NoteDao noteDao();
+    public abstract TextItemDao textItemDao();
+    public abstract CheckboxItemDao checkboxItemDao();
+    private static NoteRoomDatabase INSTANCE;
+
+    public static NoteRoomDatabase getDatabase(Context context){
+        if(INSTANCE == null){
+            synchronized (NoteRoomDatabase.class){
+                if(INSTANCE == null){
+                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
+                            NoteRoomDatabase.class, Constants.DB_NAME)
+                            .fallbackToDestructiveMigration()
+                            .addCallback(sRoomDatabaseCallback)
+                            .build();
+                }
+            }
+        }
+        return INSTANCE;
+    }
+
+    private static RoomDatabase.Callback sRoomDatabaseCallback = new Callback() {
+        @Override
+        public void onOpen(@NonNull SupportSQLiteDatabase db) {
+            super.onOpen(db);
+            // Bkav PhucDVb: TODO: DO SOMETHING WHEN DATABASE OPEN
+        }
+    };
+}
