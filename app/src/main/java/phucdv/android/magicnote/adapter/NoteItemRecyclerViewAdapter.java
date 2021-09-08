@@ -99,6 +99,9 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         }
 
         public void bind(String title){
+            if(title.isEmpty()){
+                title = mView.getContext().getString(R.string.none_text);
+            }
             mTitleView.setText(title);
 //            if(getLayoutPosition() == mValues.size() - 1){
 //                mMarginBottomView.setVisibility(View.VISIBLE);

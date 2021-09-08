@@ -19,10 +19,10 @@ public interface CheckboxItemDao {
     @Query("SELECT * FROM checkbox_item WHERE parent_id = :parentId")
     public LiveData<List<CheckboxItem>> getCheckboxItemForParentId(long parentId);
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     public Long insert(CheckboxItem checkboxItem);
 
-    @Insert (onConflict = OnConflictStrategy.REPLACE)
+    @Insert (onConflict = OnConflictStrategy.IGNORE)
     public Long[] insertAll(List<CheckboxItem> checkboxItems);
 
     @Query("DELETE FROM checkbox_item WHERE id = :id")

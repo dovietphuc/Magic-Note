@@ -21,10 +21,6 @@ public class BaseItemRepository {
     private CheckboxItemDao mCheckboxItemDao;
     private LiveData<List<TextItem>> mListTextItem;
     private LiveData<List<CheckboxItem>> mListCheckboxItem;
-    private MutableLiveData<Long> mLastTextInsertedID;
-    private MutableLiveData<Long[]> mLastTextInsertedIDs;
-    private MutableLiveData<Long> mLastCheckboxInsertedID;
-    private MutableLiveData<Long[]> mLastCheckboxInsertedIDs;
 
     public BaseItemRepository(Application application){
         NoteRoomDatabase db = NoteRoomDatabase.getDatabase(application);
@@ -38,27 +34,6 @@ public class BaseItemRepository {
         mCheckboxItemDao = db.checkboxItemDao();
         mListTextItem = mTextItemDao.getTextItemForParentId(parent_id);
         mListCheckboxItem = mCheckboxItemDao.getCheckboxItemForParentId(parent_id);
-
-        mLastTextInsertedID = new MutableLiveData<>();
-        mLastTextInsertedIDs = new MutableLiveData<>();
-        mLastCheckboxInsertedID = new MutableLiveData<>();
-        mLastCheckboxInsertedIDs = new MutableLiveData<>();
-    }
-
-    public LiveData<Long> getLastTextInsertedID() {
-        return mLastTextInsertedID;
-    }
-
-    public LiveData<Long[]> getLastTextInsertedIDs() {
-        return mLastTextInsertedIDs;
-    }
-
-    public LiveData<Long> getLastCheckboxInsertedID() {
-        return mLastCheckboxInsertedID;
-    }
-
-    public LiveData<Long[]> getLastCheckboxInsertedIDs() {
-        return mLastCheckboxInsertedIDs;
     }
 
     public LiveData<List<TextItem>> getListTextItems(){
@@ -73,7 +48,6 @@ public class BaseItemRepository {
         new AsyncTaskUtil.insertTextItemAsyncTask(mTextItemDao, new AsyncResponse() {
             @Override
             public void processFinish(Object output) {
-                mLastTextInsertedID.setValue((Long) output);
             }
         }).execute(textItem);
     }
@@ -82,7 +56,6 @@ public class BaseItemRepository {
         new AsyncTaskUtil.insertAllTextItemsAsyncTask(mTextItemDao, new AsyncResponse() {
             @Override
             public void processFinish(Object output) {
-                mLastTextInsertedIDs.setValue((Long[]) output);
             }
         }).execute(textItems);
     }
@@ -91,7 +64,6 @@ public class BaseItemRepository {
         new AsyncTaskUtil.insertChecboxItemAsyncTask(mCheckboxItemDao, new AsyncResponse() {
             @Override
             public void processFinish(Object output) {
-                mLastCheckboxInsertedID.setValue((Long) output);
             }
         }).execute(checkboxItem);
     }
@@ -100,7 +72,6 @@ public class BaseItemRepository {
         new AsyncTaskUtil.insertAllCheckboxItemsAsyncTask(mCheckboxItemDao, new AsyncResponse() {
             @Override
             public void processFinish(Object output) {
-                mLastCheckboxInsertedIDs.setValue((Long[]) output);
             }
         }).execute(checkboxItems);
     }

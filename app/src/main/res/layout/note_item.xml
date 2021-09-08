@@ -21,7 +21,8 @@
             android:text="Title"
             android:textAppearance="?attr/textAppearanceListItem"
             android:textColor="@color/black"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:maxHeight="100dp" />
 
     </LinearLayout>
 <!--    <include android:id="@+id/margin_bottom_view" layout="@layout/fake_item_margin" android:visibility="gone"/>-->

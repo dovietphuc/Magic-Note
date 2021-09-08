@@ -20,4 +20,8 @@
     <string name="add_checkbox">Add checkbox</string>
     <string name="text_here">Text here...</string>
     <string name="checkbox_item">Checkbox item</string>
+    <string name="none_text">No additional text</string>
+    <string name="warning">Warning</string>
+    <string name="warning_delete">This action will delete the note completely and cannot be undone</string>
+    <string name="confirm">Confirm</string>
 </resources>

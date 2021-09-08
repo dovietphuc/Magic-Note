@@ -21,7 +21,7 @@ public class NoteRepository {
     private LiveData<List<Note>> mArchiveNotes;
     private LiveData<List<Note>> mTrashNotes;
     private MutableLiveData<Long> mLastNodeInsertedID;
-//    private LiveData<Note> mNote;
+    private LiveData<Note> mNote;
 
     public NoteRepository(Application application){
         NoteRoomDatabase db = NoteRoomDatabase.getDatabase(application);
@@ -33,13 +33,13 @@ public class NoteRepository {
         mLastNodeInsertedID = new MutableLiveData<>();
     }
 
-//    public void initNote(long id){
-//        mNote = mNoteDao.getNotesById(id);
-//    }
+    public void initNote(long id){
+        mNote = mNoteDao.getNotesById(id);
+    }
 
-//    public LiveData<Note> getNote(){
-//        return mNote;
-//    }
+    public LiveData<Note> getNote(){
+        return mNote;
+    }
 
     public LiveData<Long> getLastNodeInsertedID(){
         return mLastNodeInsertedID;
@@ -68,6 +68,10 @@ public class NoteRepository {
                 mLastNodeInsertedID.setValue((Long) output);
             }
         }).execute(note);
+    }
+
+    public void insert(Note note, AsyncResponse response){
+        new AsyncTaskUtil.insertNoteAsyncTask(mNoteDao, response).execute(note);
     }
 
     public void deleteNote(long id){

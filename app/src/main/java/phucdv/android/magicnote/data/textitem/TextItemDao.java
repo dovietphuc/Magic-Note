@@ -17,10 +17,10 @@ public interface TextItemDao {
     @Query("SELECT * FROM text_item WHERE parent_id = :parentId")
     public LiveData<List<TextItem>> getTextItemForParentId(long parentId);
 
-    @Insert (onConflict = OnConflictStrategy.REPLACE)
+    @Insert (onConflict = OnConflictStrategy.IGNORE)
     public Long insert(TextItem textItem);
 
-    @Insert (onConflict = OnConflictStrategy.REPLACE)
+    @Insert (onConflict = OnConflictStrategy.IGNORE)
     public Long[] insertAll(List<TextItem> textItems);
 
     @Query("DELETE FROM text_item WHERE id = :id")

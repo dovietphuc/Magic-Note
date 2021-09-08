@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import phucdv.android.magicnote.R;
@@ -38,7 +39,35 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener, 
     protected EditNoteItemRecyclerViewAdapter mAdapter;
     protected EditNoteViewModel mViewModel;
     protected ShareComponents mShareComponents;
+    protected Note mNote;
+    protected Observer<List<TextItem>> mListTextItemObserver = new Observer<List<TextItem>>() {
+        @Override
+        public void onChanged(List<TextItem> textItems) {
+            mAdapter.setValues(textItems, mViewModel.getListCheckboxItems().getValue());
+        }
+    };
 
+    protected Observer<List<CheckboxItem>> mListCheckboxItemObserver = new Observer<List<CheckboxItem>>() {
+        @Override
+        public void onChanged(List<CheckboxItem> checkboxItems) {
+            mAdapter.setValues(mViewModel.getListTextItems().getValue(), checkboxItems);
+        }
+    };
+
+    protected Observer<Long> mParentIdObserver = new Observer<Long>() {
+        @Override
+        public void onChanged(Long aLong) {
+            mViewModel.initBaseItemRepository();
+            mViewModel.getNote().observe(getViewLifecycleOwner(), new Observer<Note>() {
+                @Override
+                public void onChanged(Note note) {
+                    mNote = note;
+                }
+            });
+            mViewModel.getListTextItems().observe(getViewLifecycleOwner(), mListTextItemObserver);
+            mViewModel.getListCheckboxItems().observe(getViewLifecycleOwner(), mListCheckboxItemObserver);
+        }
+    };
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -53,49 +82,7 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener, 
 
         mViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
 
-        mViewModel.getParentId().observe(getViewLifecycleOwner(), new Observer<Long>() {
-            @Override
-            public void onChanged(Long aLong) {
-                mViewModel.initBaseItemRepository();
-//                mViewModel.getNote().observe(getViewLifecycleOwner(), new Observer<Note>() {
-//                    @Override
-//                    public void onChanged(Note note) {
-//                    }
-//                });
-                mViewModel.getListTextItems().observe(getViewLifecycleOwner(), new Observer<List<TextItem>>() {
-                    @Override
-                    public void onChanged(List<TextItem> textItems) {
-//                        if(textItems.size() == 0){
-//                            mViewModel.insertTextItem(new TextItem(aLong, 0, ""));
-//                            return;
-//                        }
-                        mAdapter.setValues((List)textItems);
-                    }
-                });
-                mViewModel.getListCheckboxItems().observe(getViewLifecycleOwner(), new Observer<List<CheckboxItem>>() {
-                    @Override
-                    public void onChanged(List<CheckboxItem> checkboxItems) {
-                        mAdapter.setValues((List)checkboxItems);
-                    }
-                });
-            }
-        });
-
-        mViewModel.getLastNodeInsertedID().observe(getViewLifecycleOwner(), new Observer<Long>() {
-            @Override
-            public void onChanged(Long aLong) {
-                for(int i = 0; i < mAdapter.getAdapterList().size(); i++){
-                    BaseItem item = mAdapter.getAdapterList().get(i);
-                    if(item instanceof TextItem){
-                        ((TextItem)item).setParent_id(aLong);
-                        mViewModel.insertTextItem((TextItem) item);
-                    } else if(item instanceof CheckboxItem){
-                        ((CheckboxItem)item).setParent_id(aLong);
-                        mViewModel.insertCheckboxItem((CheckboxItem) item);
-                    }
-                }
-            }
-        });
+        mViewModel.getParentId().observe(getViewLifecycleOwner(), mParentIdObserver);
 
         mShareComponents = (ShareComponents) getContext();
         return view;
@@ -107,9 +94,7 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener, 
         if(getArguments() != null){
             long parentId = getArguments().getLong(Constants.ARG_PARENT_ID, Constants.UNKNOW_PARENT_ID);
             if(parentId == Constants.UNKNOW_PARENT_ID){
-                mAdapter.setValues(new ArrayList<>());
-//                mViewModel.insertNote(new Note("", 0, 0, false,
-//                        false, 0, false, 0));
+                mAdapter.setValues(new ArrayList<>(), new ArrayList<>());
             } else {
                 mViewModel.getParentId().setValue(parentId);
             }
@@ -128,34 +113,7 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener, 
 
     @Override
     public void onDestroy() {
-        mViewModel.getParentId().removeObservers(getViewLifecycleOwner());
-        mViewModel.getListCheckboxItems().removeObservers(getViewLifecycleOwner());
-        mViewModel.getListTextItems().removeObservers(getViewLifecycleOwner());
-
-        if(mAdapter.getAllTextCount() == 0){
-//            mViewModel.deleteNote(mViewModel.getParentId().getValue());
-        } else {
-            SortedList<BaseItem> listBase = mAdapter.getAdapterList();
-            Note toInsertNote = new Note("", 0, 0, false,
-                    false, 0, false, 0);
-            for(int i = 0; i < mAdapter.getAdapterList().size(); i++){
-                BaseItem item = mAdapter.getAdapterList().get(i);
-                if(item instanceof TextItem){
-                    if(!((TextItem) item).getContent().trim().isEmpty()){
-                        toInsertNote.setTitle(((TextItem) item).getContent());
-//                        mViewModel.updateNote(mNote);
-                        break;
-                    }
-                } else if(item instanceof CheckboxItem){
-                    if(!((CheckboxItem) item).getContent().trim().isEmpty()){
-                        toInsertNote.setTitle(((CheckboxItem) item).getContent());
-//                        mViewModel.updateNote(mNote);
-                        break;
-                    }
-                }
-            }
-            mViewModel.insertNote(toInsertNote);
-        }
+        mViewModel.onSave(mAdapter, mNote);
         if(getContext() instanceof ShareComponents) {
             mShareComponents.setFabDrawable(R.drawable.avd_add_to_done);
         }
@@ -191,7 +149,6 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener, 
     }
 
     public void addCheckItem(String content, boolean isChecked){
-//        mViewModel.insertCheckboxItem(new CheckboxItem(mViewModel.getParentId().getValue(), 0, isChecked, content));
         mAdapter.addItem(new CheckboxItem(Constants.UNKNOW_PARENT_ID, (mAdapter.getItemCount() - 1) * 100, isChecked, content));
     }
 }

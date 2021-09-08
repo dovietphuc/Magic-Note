@@ -7,23 +7,13 @@ import phucdv.android.magicnote.data.BaseItem;
 
 @Entity(tableName = "text_item")
 public class TextItem extends BaseItem {
-    @PrimaryKey(autoGenerate = true)
-    private long id;
     private long parent_id;
     private String content;
 
     public TextItem(long parent_id, long order_in_parent, String content) {
+        super(order_in_parent);
         this.parent_id = parent_id;
-        this.order_in_parent = order_in_parent;
         this.content = content;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public long getParent_id() {
