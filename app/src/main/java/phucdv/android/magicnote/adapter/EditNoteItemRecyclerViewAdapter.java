@@ -1,15 +1,18 @@
 package phucdv.android.magicnote.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,8 +26,11 @@ import phucdv.android.magicnote.R;
 import phucdv.android.magicnote.data.BaseItem;
 import phucdv.android.magicnote.data.checkboxitem.CheckboxItem;
 import phucdv.android.magicnote.data.textitem.TextItem;
+import phucdv.android.magicnote.noteinterface.OnKeyClick;
 import phucdv.android.magicnote.noteinterface.ShareComponents;
 import phucdv.android.magicnote.util.Constants;
+import phucdv.android.magicnote.util.KeyBoardController;
+import phucdv.android.magicnote.util.MyEditText;
 
 public class EditNoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -39,8 +45,8 @@ public class EditNoteItemRecyclerViewAdapter extends RecyclerView.Adapter<Recycl
 
     private SortedList<BaseItem> mItemSortedList;
     private HashMap<BaseItem, Integer> mHashItem;
-    private long mTextCount = 0;
-    private long mCheckboxtextCount = 0;
+    private HashMap<Integer, Integer> mTextCount = new HashMap<>();
+    private HashMap<Integer, Integer> mCheckboxtextCount = new HashMap<>();
     private SortedList<BaseItem> mNewSortedList = new SortedList<BaseItem>(BaseItem.class, new SortedList.Callback<BaseItem>() {
         @Override
         public int compare(BaseItem o1, BaseItem o2) {
@@ -75,9 +81,14 @@ public class EditNoteItemRecyclerViewAdapter extends RecyclerView.Adapter<Recycl
         }
     });
 
-    public EditNoteItemRecyclerViewAdapter() {
+    private boolean mIsItemNewAdd = false;
+    private Context mContext;
+    private int mFocusPosition = -1;
+
+    public EditNoteItemRecyclerViewAdapter(Context context) {
         mHashItem = new HashMap<>();
         mItemSortedList = mNewSortedList;
+        mContext = context;
     }
 
     public void setValues(List<TextItem> textItems, List<CheckboxItem> checkboxItems) {
@@ -104,17 +115,60 @@ public class EditNoteItemRecyclerViewAdapter extends RecyclerView.Adapter<Recycl
         notifyDataSetChanged();
     }
 
+    public void addCheckItem(String content, boolean isChecked){
+        addItem(new CheckboxItem(Constants.UNKNOW_PARENT_ID, 0, isChecked, content));
+    }
+
+    public void addCheckItem(String content, boolean isChecked, int position){
+        addItem(new CheckboxItem(Constants.UNKNOW_PARENT_ID, 0, isChecked, content), position);
+    }
+
+    public void addTextItem(String content){
+        addItem(new TextItem(Constants.UNKNOW_PARENT_ID, 0, content));
+    }
+
+    public void addTextItem(String content, int position){
+        addItem(new TextItem(Constants.UNKNOW_PARENT_ID, 0, content), position);
+    }
+
     public void addItem(BaseItem item){
+        item.setOrder_in_parent(getItemCount() * 100);
         mItemSortedList.add(item);
         mHashItem.put(item, STATE_ADD);
+        mIsItemNewAdd = true;
         notifyItemInserted(mItemSortedList.size() - 1);
+    }
+
+    public void addItem(BaseItem item, int position){
+        BaseItem baseItem1 = null;
+        BaseItem baseItem2 = null;
+        if(position < mItemSortedList.size()){
+            baseItem1 = mItemSortedList.get(position - 1);
+            baseItem2 = mItemSortedList.get(position);
+        }
+
+        if(baseItem1 == null || baseItem2 == null){
+            addItem(item);
+        } else {
+            item.setOrder_in_parent(baseItem1.getOrder_in_parent() + (baseItem2.getOrder_in_parent()
+                    - baseItem1.getOrder_in_parent())/2);
+            mItemSortedList.add(item);
+            mHashItem.put(item, STATE_ADD);
+            mIsItemNewAdd = true;
+            notifyItemInserted(position);
+        }
     }
 
     public void removeItem(int position){
         BaseItem baseItem = mItemSortedList.get(position);
         mHashItem.put(baseItem, STATE_DELETE);
-        mItemSortedList.remove(baseItem);
+        mItemSortedList.removeItemAt(position);
         notifyItemRemoved(position);
+    }
+
+    public void focusOnPosition(int position){
+        mFocusPosition = position;
+        notifyItemChanged(position);
     }
 
     public HashMap<BaseItem, Integer> getHashMap(){
@@ -126,7 +180,14 @@ public class EditNoteItemRecyclerViewAdapter extends RecyclerView.Adapter<Recycl
     }
 
     public long getAllTextCount(){
-        return mTextCount + mCheckboxtextCount;
+        int count = 0;
+        for(Integer i : mTextCount.keySet()){
+            count += mTextCount.get(i);
+        }
+        for(Integer i : mCheckboxtextCount.keySet()){
+            count += mCheckboxtextCount.get(i);
+        }
+        return count;
     }
 
     @Override
@@ -165,7 +226,8 @@ public class EditNoteItemRecyclerViewAdapter extends RecyclerView.Adapter<Recycl
                         .bind(((CheckboxItem) mItemSortedList.get(position)).getContent(),
                                 ((CheckboxItem) mItemSortedList.get(position)).isIs_checked());
                 break;
-            case TYPE_TEXT: ((TextItemViewHolder) holder)
+            case TYPE_TEXT:
+                ((TextItemViewHolder) holder)
                     .bind(((TextItem) mItemSortedList.get(position)).getContent());
                 break;
         }
@@ -178,7 +240,7 @@ public class EditNoteItemRecyclerViewAdapter extends RecyclerView.Adapter<Recycl
 
     public class TextItemViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
-        public final EditText mEditTextView;
+        public final MyEditText mEditTextView;
 
         public TextItemViewHolder(View view) {
             super(view);
@@ -192,7 +254,7 @@ public class EditNoteItemRecyclerViewAdapter extends RecyclerView.Adapter<Recycl
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    mTextCount = s.toString().trim().length();
+                    mTextCount.put(getLayoutPosition(), s.toString().trim().length());
                     BaseItem item = mItemSortedList.get(getLayoutPosition());
                     ((TextItem)item).setContent(s.toString());
                     if(mHashItem.get(item) != STATE_ADD){
@@ -209,13 +271,18 @@ public class EditNoteItemRecyclerViewAdapter extends RecyclerView.Adapter<Recycl
 
         public void bind(String text) {
             mEditTextView.setText(text);
+            if(mIsItemNewAdd || mFocusPosition == getLayoutPosition()){
+                mEditTextView.requestFocus(mEditTextView.getText().length());
+                KeyBoardController.showKeyboard((Activity) mContext);
+                mIsItemNewAdd = false;
+            }
         }
     }
 
     public class CheckboxItemViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final CheckBox mCheckBoxView;
-        public final EditText mEditTextView;
+        public final MyEditText mEditTextView;
 
         public CheckboxItemViewHolder(View view) {
             super(view);
@@ -240,7 +307,7 @@ public class EditNoteItemRecyclerViewAdapter extends RecyclerView.Adapter<Recycl
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    mCheckboxtextCount = s.toString().trim().length();
+                    mCheckboxtextCount.put(getLayoutPosition(), s.toString().trim().length());
                     BaseItem item = mItemSortedList.get(getLayoutPosition());
                     ((CheckboxItem)item).setContent(s.toString());
                     if(mHashItem.get(item) != STATE_ADD){
@@ -253,11 +320,43 @@ public class EditNoteItemRecyclerViewAdapter extends RecyclerView.Adapter<Recycl
 
                 }
             });
+
+            mEditTextView.setImeActionLabel(view.getContext().getString(R.string.next), KeyEvent.KEYCODE_ENTER);
+
+            mEditTextView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    if(actionId == KeyEvent.KEYCODE_ENTER){
+                        addCheckItem("", false, getLayoutPosition() + 1);
+                        return true;
+                    }
+                    return false;
+                }
+            });
+
+            mEditTextView.setOnKeyClick(new OnKeyClick() {
+                @Override
+                public boolean onKeyClick(KeyEvent event) {
+                    if (event.getAction() == KeyEvent.ACTION_DOWN
+                            && event.getKeyCode() == KeyEvent.KEYCODE_DEL) {
+                        if (mEditTextView.getText().toString().length() == 0){
+                            removeItem(getLayoutPosition());
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            });
         }
 
         public void bind(String text, boolean isChecked) {
             mCheckBoxView.setChecked(isChecked);
             mEditTextView.setText(text);
+            if(mIsItemNewAdd || mFocusPosition == getLayoutPosition()){
+                mEditTextView.requestFocus(mEditTextView.getText().length());
+                KeyBoardController.showKeyboard((Activity) mContext);
+                mIsItemNewAdd = false;
+            }
         }
     }
 }

@@ -164,8 +164,7 @@ public class EditNoteViewModel extends AndroidViewModel {
             } else {
                 updateNote(toInsertNote);
                 initBaseItemRepository(note.getId());
-                for (int i = 0; i < listBase.size(); i++) {
-                    BaseItem item = listBase.get(i);
+                for (BaseItem item : hashMap.keySet()) {
                     int state = hashMap.get(item);
                     if (state == EditNoteItemRecyclerViewAdapter.STATE_NONE) {
                         continue;

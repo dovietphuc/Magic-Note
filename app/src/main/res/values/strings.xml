@@ -24,4 +24,5 @@
     <string name="warning">Warning</string>
     <string name="warning_delete">This action will delete the note completely and cannot be undone</string>
     <string name="confirm">Confirm</string>
+    <string name="next">Next</string>
 </resources>

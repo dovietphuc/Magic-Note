@@ -14,8 +14,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SortedList;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -76,8 +78,34 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener, 
         if(view instanceof RecyclerView){
             mRecyclerView = (RecyclerView) view;
             mRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
-            mAdapter = new EditNoteItemRecyclerViewAdapter();
+            mAdapter = new EditNoteItemRecyclerViewAdapter(getContext());
             mRecyclerView.setAdapter(mAdapter);
+            mRecyclerView.setOnTouchListener(new View.OnTouchListener() {
+                int downPosX = 0;
+                int downPosY = 0;
+                int slop = 50;
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if(event.getAction() == MotionEvent.ACTION_UP){
+                        if(Math.abs(downPosX - event.getX()) < slop && Math.abs(downPosY - event.getY()) < slop){
+                            if(!(mAdapter.getAdapterList().get(mAdapter.getAdapterList().size()-1) instanceof TextItem)){
+                                mAdapter.addTextItem("");
+                            } else {
+                                mAdapter.focusOnPosition(mAdapter.getAdapterList().size() - 1);
+                            }
+                            downPosX = 0;
+                            downPosY = 0;
+                            return true;
+                        }
+                        downPosX = 0;
+                        downPosY = 0;
+                    } else if(event.getAction() == MotionEvent.ACTION_DOWN){
+                        downPosX = (int) event.getX();
+                        downPosY = (int) event.getY();
+                    }
+                    return false;
+                }
+            });
         }
 
         mViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
@@ -142,13 +170,9 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener, 
             case R.id.action_redo:
                 break;
             case R.id.action_add_check_item:
-                addCheckItem("", false);
+                mAdapter.addCheckItem("", false);
                 break;
         }
         return false;
-    }
-
-    public void addCheckItem(String content, boolean isChecked){
-        mAdapter.addItem(new CheckboxItem(Constants.UNKNOW_PARENT_ID, (mAdapter.getItemCount() - 1) * 100, isChecked, content));
     }
 }

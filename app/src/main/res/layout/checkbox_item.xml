@@ -14,12 +14,15 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent" />
 
-        <EditText
+        <phucdv.android.magicnote.util.MyEditText
             android:id="@+id/textInputText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
             android:gravity="center_vertical"
-            android:hint="@string/checkbox_item"/>
+            android:hint="@string/checkbox_item"
+            android:inputType="text"
+            android:minHeight="40dp" />
     </LinearLayout>
 
 <!--    <include android:id="@+id/margin_bottom_view" layout="@layout/fake_item_margin" android:visibility="gone"/>-->
