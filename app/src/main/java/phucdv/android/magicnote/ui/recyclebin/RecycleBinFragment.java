@@ -48,6 +48,9 @@ public class RecycleBinFragment extends BaseListNoteFragment {
     }
 
     public void onSwipeLeft(RecyclerView.ViewHolder viewHolder){
+        if(viewHolder.getLayoutPosition() >= mViewModel.getNotesInTrash().getValue().size()){
+            return;
+        }
         AlertDialog.Builder builder = new MaterialAlertDialogBuilder(getContext())
                 .setTitle(R.string.warning)
                 .setMessage(R.string.warning_delete)
@@ -71,6 +74,9 @@ public class RecycleBinFragment extends BaseListNoteFragment {
         alertDialog.show();
     }
     public void onSwipeRight(RecyclerView.ViewHolder viewHolder){
+        if(viewHolder.getLayoutPosition() >= mViewModel.getNotesInTrash().getValue().size()){
+            return;
+        }
         Note note = mViewModel.getNotesInTrash().getValue()
                 .get(viewHolder.getLayoutPosition());
         note.setIs_archive(false);

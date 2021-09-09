@@ -45,6 +45,9 @@ public class ArchiveFragment extends BaseListNoteFragment {
     }
 
     public void onSwipeLeft(RecyclerView.ViewHolder viewHolder){
+        if(viewHolder.getLayoutPosition() >= mViewModel.getNotesInArchive().getValue().size()){
+            return;
+        }
         Note note = mViewModel.getNotesInArchive().getValue()
                 .get(viewHolder.getLayoutPosition());
         note.setIs_archive(false);
@@ -61,6 +64,9 @@ public class ArchiveFragment extends BaseListNoteFragment {
                 }).show();
     }
     public void onSwipeRight(RecyclerView.ViewHolder viewHolder){
+        if(viewHolder.getLayoutPosition() >= mViewModel.getNotesInArchive().getValue().size()){
+            return;
+        }
         Note note = mViewModel.getNotesInArchive().getValue()
                 .get(viewHolder.getLayoutPosition());
         note.setIs_archive(false);

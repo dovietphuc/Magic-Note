@@ -44,6 +44,9 @@ public class ProcessingFragment extends BaseListNoteFragment {
     }
 
     public void onSwipeLeft(RecyclerView.ViewHolder viewHolder){
+        if(viewHolder.getLayoutPosition() >= mProcessingViewModel.getProcessingNotes().getValue().size()){
+            return;
+        }
         Note note = mProcessingViewModel.getProcessingNotes().getValue()
                 .get(viewHolder.getLayoutPosition());
         note.setIs_archive(true);
