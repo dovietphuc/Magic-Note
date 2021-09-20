@@ -3,35 +3,50 @@ package phucdv.android.magicnote.ui.editnote;
 import android.app.Application;
 
 import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.SortedList;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import phucdv.android.magicnote.R;
 import phucdv.android.magicnote.adapter.EditNoteItemRecyclerViewAdapter;
 import phucdv.android.magicnote.data.BaseItem;
 import phucdv.android.magicnote.data.BaseItemRepository;
 import phucdv.android.magicnote.data.checkboxitem.CheckboxItem;
+import phucdv.android.magicnote.data.imageitem.ImageItem;
 import phucdv.android.magicnote.data.noteitem.Note;
 import phucdv.android.magicnote.data.noteitem.NoteRepository;
 import phucdv.android.magicnote.data.textitem.TextItem;
 import phucdv.android.magicnote.noteinterface.AsyncResponse;
 import phucdv.android.magicnote.util.AsyncTaskUtil;
 import phucdv.android.magicnote.util.Constants;
+import phucdv.android.magicnote.util.FileHelper;
 
 public class EditNoteViewModel extends AndroidViewModel {
     private NoteRepository mNoteRepository;
     private BaseItemRepository mBaseItemRepository;
     private MutableLiveData<Long> mParentId;
     private LiveData<Note> mNote;
+    private MutableLiveData<Integer> mCurrentColor;
+
+    private MutableLiveData<Boolean> mIsPinned;
+    private MutableLiveData<Boolean> mIsArchive;
+    private MutableLiveData<Boolean> mIsTrash;
 
     public EditNoteViewModel(Application application) {
         super(application);
         mNoteRepository = new NoteRepository(application);
         mParentId = new MutableLiveData<Long>();
+        mCurrentColor = new MutableLiveData<>(application.getColor(R.color.default_note_color));
+        mIsPinned = new MutableLiveData<>(false);
+        mIsArchive = new MutableLiveData<>(false);
+        mIsTrash = new MutableLiveData<>(false);
     }
 
     public void initBaseItemRepository(){
@@ -44,6 +59,38 @@ public class EditNoteViewModel extends AndroidViewModel {
         mBaseItemRepository = new BaseItemRepository(getApplication(), parentId);
         mNoteRepository.initNote(parentId);
         mNote = mNoteRepository.getNote();
+    }
+
+    public MutableLiveData<Integer> getCurrentColor() {
+        return mCurrentColor;
+    }
+
+    public void setCurrentColor(int color) {
+        this.mCurrentColor.setValue(color);
+    }
+
+    public MutableLiveData<Boolean> getIsPinned() {
+        return mIsPinned;
+    }
+
+    public void setIsPinned(boolean mIsPinned) {
+        this.mIsPinned.setValue(mIsPinned);
+    }
+
+    public MutableLiveData<Boolean> getIsArchive() {
+        return mIsArchive;
+    }
+
+    public void setIsArchive(boolean isArchive) {
+        this.mIsArchive.setValue(isArchive);
+    }
+
+    public MutableLiveData<Boolean> getIsTrash() {
+        return mIsTrash;
+    }
+
+    public void setIsTrash(boolean isTrash) {
+        this.mIsTrash.setValue(isTrash);
     }
 
     public LiveData<Note> getNote(){
@@ -60,6 +107,10 @@ public class EditNoteViewModel extends AndroidViewModel {
 
     public LiveData<List<CheckboxItem>> getListCheckboxItems() {
         return mBaseItemRepository.getListCheckboxItems();
+    }
+
+    public LiveData<List<ImageItem>> getListImageItems() {
+        return mBaseItemRepository.getListImageItems();
     }
 
     public void insertNote(Note note) { mNoteRepository.insert(note); }
@@ -86,6 +137,7 @@ public class EditNoteViewModel extends AndroidViewModel {
         mNoteRepository.deleteNote(id);
         mBaseItemRepository.deleteTextByParentId(id);
         mBaseItemRepository.deleteCheckboxByParentId(id);
+        mBaseItemRepository.deleteImageItemByParentId(id);
     }
 
     public void updateTextItem(TextItem item){
@@ -120,12 +172,38 @@ public class EditNoteViewModel extends AndroidViewModel {
         mBaseItemRepository.deleteCheckboxById(id);
     }
 
+    public void insertImageItem(ImageItem imageItem){
+        mBaseItemRepository.insertImageItem(imageItem);
+    }
+
+    public void deleteImageItemById(long id){
+        mBaseItemRepository.deleteImageItemById(id);
+    }
+
+    public void deleteImageItemByParentId(long parentId){
+        mBaseItemRepository.deleteImageItemByParentId(parentId);
+    }
+
+    public void updateImageItem(ImageItem imageItem){
+        mBaseItemRepository.updateImageItem(imageItem);
+    }
+
     public void onSave(EditNoteItemRecyclerViewAdapter adapter, Note note){
-        if(adapter.getAllTextCount() != 0 || note != null) {
+        if(adapter.getAllTextCount() + adapter.getNoneTextItemCount() != 0 || note != null) {
             HashMap<BaseItem, Integer> hashMap = adapter.getHashMap();
-            Note toInsertNote = (note == null) ? new Note("", 0, 0, false,
-                    false, 0, false, 0) : note;
+
+            // Bkav PhucDVb: create base note item to insert/update
+            Note toInsertNote = (note == null) ? new Note("", Calendar.getInstance(), Calendar.getInstance(),
+                    false, false, 0, false,
+                    0, false, false) : note;
+            toInsertNote.setColor(mCurrentColor.getValue());
+            toInsertNote.setTime_last_update(Calendar.getInstance());
+            toInsertNote.setIs_pinned(mIsPinned.getValue());
+            toInsertNote.setIs_archive(mIsArchive.getValue());
+            toInsertNote.setIs_deleted(mIsTrash.getValue());
             SortedList<BaseItem> listBase = adapter.getAdapterList();
+
+            // Bkav PhucDVb: find title for note item
             if(adapter.getAllTextCount() == 0){
                 toInsertNote.setTitle("");
             } else {
@@ -141,22 +219,41 @@ public class EditNoteViewModel extends AndroidViewModel {
                             toInsertNote.setTitle(((CheckboxItem) item).getContent());
                             break;
                         }
+                    } else if (item instanceof ImageItem) {
                     }
                 }
             }
+
+            // Bkav PhucDVb: check if has image/checkbox...
+            boolean hasCheckbox = false;
+            boolean hasImage = false;
+            for (int i = 0; i < listBase.size(); i++) {
+                BaseItem item = listBase.get(i);
+                if (item instanceof CheckboxItem) {
+                    hasCheckbox = true;
+                } else if (item instanceof ImageItem) {
+                    hasImage = true;
+                }
+            }
+            toInsertNote.setHas_checkbox(hasCheckbox);
+            toInsertNote.setHas_image(hasImage);
+
+            // Bkav PhucDVb: insert/update note and child item
             if (note == null) {
+                toInsertNote.setTime_create(toInsertNote.getTime_last_update());
                 insertNote(toInsertNote, new AsyncResponse() {
                     @Override
                     public void processFinish(Object output) {
                         initBaseItemRepository((Long) output);
                         for (int i = 0; i < listBase.size(); i++) {
                             BaseItem item = listBase.get(i);
+                            item.setParent_id((Long) output);
                             if (item instanceof TextItem) {
-                                ((TextItem) item).setParent_id((Long) output);
                                 insertTextItem((TextItem) item);
                             } else if (item instanceof CheckboxItem) {
-                                ((CheckboxItem) item).setParent_id((Long) output);
                                 insertCheckboxItem((CheckboxItem) item);
+                            } else if (item instanceof ImageItem) {
+                                insertImageItem((ImageItem) item);
                             }
                         }
                     }
@@ -166,31 +263,32 @@ public class EditNoteViewModel extends AndroidViewModel {
                 initBaseItemRepository(note.getId());
                 for (BaseItem item : hashMap.keySet()) {
                     int state = hashMap.get(item);
+                    item.setParent_id(note.getId());
                     if (state == EditNoteItemRecyclerViewAdapter.STATE_NONE) {
                         continue;
                     } else if (state == EditNoteItemRecyclerViewAdapter.STATE_ADD) {
                         if (item instanceof TextItem) {
-                            ((TextItem) item).setParent_id(note.getId());
                             insertTextItem((TextItem) item);
                         } else if (item instanceof CheckboxItem) {
-                            ((CheckboxItem) item).setParent_id(note.getId());
                             insertCheckboxItem((CheckboxItem) item);
+                        } else if(item instanceof ImageItem){
+                            insertImageItem((ImageItem) item);
                         }
                     } else if (state == EditNoteItemRecyclerViewAdapter.STATE_MODIFY) {
                         if (item instanceof TextItem) {
-                            ((TextItem) item).setParent_id(note.getId());
                             updateTextItem((TextItem) item);
                         } else if (item instanceof CheckboxItem) {
-                            ((CheckboxItem) item).setParent_id(note.getId());
                             updateCheckboxItem((CheckboxItem) item);
+                        } else if (item instanceof ImageItem){
+                            updateImageItem((ImageItem) item);
                         }
                     } else if (state == EditNoteItemRecyclerViewAdapter.STATE_DELETE) {
                         if (item instanceof TextItem) {
-                            ((TextItem) item).setParent_id(note.getId());
                             deleteTextItemById(item.getId());
                         } else if (item instanceof CheckboxItem) {
-                            ((CheckboxItem) item).setParent_id(note.getId());
                             deleteCheckboxItemById(item.getId());
+                        } else if(item instanceof ImageItem){
+                            deleteImageItemById(item.getId());
                         }
                     }
                 }

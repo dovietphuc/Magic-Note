@@ -1,26 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:layout_marginHorizontal="12dp">
 
-    <FrameLayout android:layout_height="wrap_content"
-        android:layout_width="match_parent">
+    <phucdv.android.magicnote.util.UndoRedoEditText
+        android:id="@+id/textInputText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:inputType="textMultiLine"
+        android:minHeight="40dp" />
 
-        <phucdv.android.magicnote.util.MyEditText
-            android:id="@+id/textInputText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ems="10"
-            android:gravity="start|top"
-            android:hint="@string/text_here"
-            android:inputType="textMultiLine"
-            android:minHeight="40dp"
-            android:background="@android:color/transparent" />
-
-    </FrameLayout>
-
-<!--    <include android:id="@+id/margin_bottom_view" layout="@layout/fake_item_margin" android:visibility="gone"/>-->
-</LinearLayout>
+</FrameLayout>

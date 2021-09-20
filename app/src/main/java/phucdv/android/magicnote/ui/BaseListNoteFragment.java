@@ -8,6 +8,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -16,6 +17,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -27,7 +30,7 @@ import phucdv.android.magicnote.util.Constants;
 import phucdv.android.magicnote.util.KeyBoardController;
 import phucdv.android.magicnote.util.NoteItemTouchCallback;
 
-public abstract class BaseListNoteFragment extends Fragment implements View.OnClickListener, TouchHelper {
+public abstract class BaseListNoteFragment extends Fragment implements View.OnClickListener, TouchHelper, Toolbar.OnMenuItemClickListener {
 
     protected RecyclerView mRecyclerView;
     protected NoteItemRecyclerViewAdapter mAdapter;
@@ -48,6 +51,7 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
         }
 
         mShareComponents = (ShareComponents) getContext();
+        setHasOptionsMenu(true);
         return view;
     }
 
@@ -65,6 +69,13 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
     }
 
     @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(getMenu(), menu);
+        mShareComponents.getToolbar().setOnMenuItemClickListener(this);
+    }
+
+    @Override
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.fab:
@@ -77,4 +88,6 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
                 break;
         }
     }
+
+    public abstract int getMenu();
 }

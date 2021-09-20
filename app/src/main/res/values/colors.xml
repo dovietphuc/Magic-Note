@@ -7,4 +7,22 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="default_note_color">#ffeaa7</color>
+
+    <color name="to_archive">#f39c12</color>
+    <color name="to_processing">#2ecc71</color>
+    <color name="to_trash">#e74c3c</color>
+    <color name="completely_delete">#c0392b</color>
+
+    <array name="background_color">
+        <item>#ffeaa7</item>
+        <item>#d63031</item>
+        <item>#fd79a8</item>
+        <item>#55efc4</item>
+        <item>#81ecec</item>
+        <item>#74b9ff</item>
+        <item>#a29bfe</item>
+        <item>#dfe6e9</item>
+    </array>
 </resources>

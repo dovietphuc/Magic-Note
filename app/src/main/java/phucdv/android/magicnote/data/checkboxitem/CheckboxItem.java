@@ -7,23 +7,13 @@ import phucdv.android.magicnote.data.BaseItem;
 
 @Entity(tableName = "checkbox_item")
 public class CheckboxItem extends BaseItem {
-    private long parent_id;
     private boolean is_checked;
     private String content;
 
     public CheckboxItem(long parent_id, long order_in_parent, boolean is_checked, String content) {
-        super(order_in_parent);
-        this.parent_id = parent_id;
+        super(order_in_parent, parent_id);
         this.is_checked = is_checked;
         this.content = content;
-    }
-
-    public long getParent_id() {
-        return parent_id;
-    }
-
-    public void setParent_id(long parent_id) {
-        this.parent_id = parent_id;
     }
 
     public boolean isIs_checked() {

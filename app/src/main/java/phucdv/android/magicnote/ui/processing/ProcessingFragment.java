@@ -1,7 +1,10 @@
 package phucdv.android.magicnote.ui.processing;
 
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -14,6 +17,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
+import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 import phucdv.android.magicnote.R;
 import phucdv.android.magicnote.data.BaseItemRepository;
 import phucdv.android.magicnote.data.noteitem.Note;
@@ -43,6 +47,11 @@ public class ProcessingFragment extends BaseListNoteFragment {
         return view;
     }
 
+    @Override
+    public int getMenu() {
+        return R.menu.processing_menu;
+    }
+
     public void onSwipeLeft(RecyclerView.ViewHolder viewHolder){
         if(viewHolder.getLayoutPosition() >= mProcessingViewModel.getProcessingNotes().getValue().size()){
             return;
@@ -52,7 +61,7 @@ public class ProcessingFragment extends BaseListNoteFragment {
         note.setIs_archive(true);
         note.setIs_deleted(false);
         mProcessingViewModel.updateNote(note);
-        Snackbar.make(getView(), "Moved to archive", Snackbar.LENGTH_LONG)
+        Snackbar.make(getView(), getString(R.string.move_to_archive), Snackbar.LENGTH_LONG)
                 .setAction(R.string.undo, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -68,6 +77,24 @@ public class ProcessingFragment extends BaseListNoteFragment {
     public boolean onMove(RecyclerView recyclerView,
                           RecyclerView.ViewHolder viewHolder,
                           RecyclerView.ViewHolder target){
+        return false;
+    }
+
+    @Override
+    public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+        if(viewHolder.getLayoutPosition() >= mProcessingViewModel.getProcessingNotes().getValue().size()){
+            return;
+        }
+        new RecyclerViewSwipeDecorator.Builder(getContext(), c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                .addBackgroundColor(getResources().getColor(R.color.to_archive))
+                .addActionIcon(R.drawable.ic_baseline_archive_white_24)
+                .addSwipeLeftLabel(getString(R.string.archive))
+                .create()
+                .decorate();
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
         return false;
     }
 }

@@ -31,5 +31,6 @@
     <fragment
         android:id="@+id/nav_edit_note"
         android:name="phucdv.android.magicnote.ui.editnote.EditNoteFragment"
-        android:label="@string/edit_note" />
+        android:label="@string/edit_note" >
+    </fragment>
 </navigation>

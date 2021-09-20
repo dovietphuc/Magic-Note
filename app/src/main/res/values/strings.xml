@@ -25,4 +25,30 @@
     <string name="warning_delete">This action will delete the note completely and cannot be undone</string>
     <string name="confirm">Confirm</string>
     <string name="next">Next</string>
+    <string name="add_photo">Add photo</string>
+    <string name="camera">Camera</string>
+    <string name="add_photo_from">Add photo from</string>
+    <string name="gallery">Gallery</string>
+    <string name="take_picture_from">Take picture from</string>
+    <string name="select_photo_from">Select photo from</string>
+    <string name="hand_drawing">Hand drawing</string>
+    <string name="change_color">Change color</string>
+    <string name="open">Open</string>
+    <string name="alarm">Alarm</string>
+    <string name="move_to_processing">Moved to processing</string>
+    <string name="delete">Deleted</string>
+    <string name="cancel">Cancel</string>
+    <string name="move_to_archive">Moved to archive</string>
+    <string name="completely_delete">Completely delete</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="date">Date</string>
+    <string name="date_time_picker">Date time picker</string>
+    <string name="time_created">Created: %1$s</string>
+    <string name="last_modify">Last modify: %1$s</string>
+    <string name="reminder">Reminder</string>
+    <string name="pin">Pin</string>
+    <string name="unpin">Unpin</string>
+    <string name="share">Share</string>
+    <string name="restore">Restore</string>
 </resources>

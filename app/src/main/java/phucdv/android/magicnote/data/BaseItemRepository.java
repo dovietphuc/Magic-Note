@@ -1,39 +1,48 @@
 package phucdv.android.magicnote.data;
 
 import android.app.Application;
+import android.content.Context;
 
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import phucdv.android.magicnote.data.checkboxitem.CheckboxItem;
 import phucdv.android.magicnote.data.checkboxitem.CheckboxItemDao;
+import phucdv.android.magicnote.data.imageitem.ImageItem;
+import phucdv.android.magicnote.data.imageitem.ImageItemDao;
 import phucdv.android.magicnote.data.textitem.TextItem;
 import phucdv.android.magicnote.data.textitem.TextItemDao;
 import phucdv.android.magicnote.noteinterface.AsyncResponse;
 import phucdv.android.magicnote.util.AsyncTaskUtil;
+import phucdv.android.magicnote.util.FileHelper;
 
 public class BaseItemRepository {
     private TextItemDao mTextItemDao;
     private CheckboxItemDao mCheckboxItemDao;
+    private ImageItemDao mImageItemDao;
     private LiveData<List<TextItem>> mListTextItem;
     private LiveData<List<CheckboxItem>> mListCheckboxItem;
+    private LiveData<List<ImageItem>> mListImageItem;
 
     public BaseItemRepository(Application application){
         NoteRoomDatabase db = NoteRoomDatabase.getDatabase(application);
         mTextItemDao = db.textItemDao();
         mCheckboxItemDao = db.checkboxItemDao();
+        mImageItemDao = db.imageItemDao();
+
     }
 
     public BaseItemRepository(Application application, long parent_id){
         NoteRoomDatabase db = NoteRoomDatabase.getDatabase(application);
         mTextItemDao = db.textItemDao();
         mCheckboxItemDao = db.checkboxItemDao();
+        mImageItemDao = db.imageItemDao();
         mListTextItem = mTextItemDao.getTextItemForParentId(parent_id);
         mListCheckboxItem = mCheckboxItemDao.getCheckboxItemForParentId(parent_id);
+        mListImageItem = mImageItemDao.getImageItemsByParentId(parent_id);
     }
 
     public LiveData<List<TextItem>> getListTextItems(){
@@ -42,6 +51,10 @@ public class BaseItemRepository {
 
     public LiveData<List<CheckboxItem>> getListCheckboxItems(){
         return mListCheckboxItem;
+    }
+
+    public LiveData<List<ImageItem>> getListImageItems(){
+        return mListImageItem;
     }
 
     public void insertTextItem(TextItem textItem){
@@ -106,5 +119,43 @@ public class BaseItemRepository {
 
     public void updateListCheckboxItem(List<CheckboxItem> items){
         new AsyncTaskUtil.updateListCheckboxItemAsyncTask(mCheckboxItemDao).execute(items);
+    }
+
+    public void insertImageItem(ImageItem imageItem){
+        new AsyncTaskUtil.insertImageItemAsyncTask(mImageItemDao, new AsyncResponse() {
+            @Override
+            public void processFinish(Object output) {
+
+            }
+        }).execute(imageItem);
+    }
+
+    public void deleteImageItemById(long id) {
+        new AsyncTaskUtil.deleteImageItemByIdAsyncTask(mImageItemDao, new AsyncResponse() {
+            @Override
+            public void processFinish(Object output) {
+            }
+        }).execute(id);
+    }
+
+    public void deleteImageItemByParentId(long parentId) {
+        new AsyncTaskUtil.deleteImageItemByParentIdAsyncTask(mImageItemDao, new AsyncResponse() {
+            @Override
+            public void processFinish(Object output) {
+            }
+        }).execute(parentId);
+    }
+
+    public void updateImageItem(ImageItem imageItem){
+        new AsyncTaskUtil.updateImageItemAsyncTask(mImageItemDao, new AsyncResponse() {
+            @Override
+            public void processFinish(Object output) {
+
+            }
+        }).execute(imageItem);
+    }
+
+    public LiveData<ImageItem> getImageItemById(long id){
+        return mImageItemDao.getImageItemById(id);
     }
 }

@@ -3,6 +3,7 @@ package phucdv.android.magicnote.ui.processing;
 import android.app.Application;
 
 import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 
 import java.util.List;
@@ -37,5 +38,6 @@ public class ProcessingViewModel extends AndroidViewModel {
         mNoteRepository.deleteNote(id);
         mBaseItemRepository.deleteTextByParentId(id);
         mBaseItemRepository.deleteCheckboxByParentId(id);
+        mBaseItemRepository.deleteImageItemByParentId(id);
     }
 }

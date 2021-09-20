@@ -6,15 +6,20 @@
         android:id="@+id/action_undo"
         android:icon="@drawable/ic_baseline_undo_24"
         android:title="@string/undo"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="always"/>
     <item
         android:id="@+id/action_redo"
         android:icon="@drawable/ic_baseline_redo_24"
         android:title="@string/redo"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="always"/>
     <item
         android:id="@+id/action_add_check_item"
         android:icon="@drawable/ic_outline_library_add_check_24"
         android:title="@string/add_checkbox"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/action_add_photo"
+        android:icon="@drawable/ic_baseline_add_photo_alternate_24"
+        android:title="@string/add_photo"
+        app:showAsAction="always"/>
 </menu>

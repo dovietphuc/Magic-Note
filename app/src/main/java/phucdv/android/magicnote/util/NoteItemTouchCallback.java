@@ -1,5 +1,7 @@
 package phucdv.android.magicnote.util;
 
+import android.graphics.Canvas;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -9,22 +11,6 @@ import phucdv.android.magicnote.noteinterface.TouchHelper;
 public class NoteItemTouchCallback extends ItemTouchHelper.SimpleCallback {
     private TouchHelper mTouchHelper;
 
-    /**
-     * Creates a Callback for the given drag and swipe allowance. These values serve as
-     * defaults
-     * and if you want to customize behavior per ViewHolder, you can override
-     * {@link #getSwipeDirs(RecyclerView, ViewHolder)}
-     * and / or {@link #getDragDirs(RecyclerView, ViewHolder)}.
-     *
-     * @param dragDirs  Binary OR of direction flags in which the Views can be dragged. Must be
-     *                  composed of {@link #LEFT}, {@link #RIGHT}, {@link #START}, {@link
-     *                  #END},
-     *                  {@link #UP} and {@link #DOWN}.
-     * @param swipeDirs Binary OR of direction flags in which the Views can be swiped. Must be
-     *                  composed of {@link #LEFT}, {@link #RIGHT}, {@link #START}, {@link
-     *                  #END},
-     *                  {@link #UP} and {@link #DOWN}.
-     */
     public NoteItemTouchCallback(int dragDirs, int swipeDirs, TouchHelper touchHelper) {
         super(dragDirs, swipeDirs);
         mTouchHelper = touchHelper;
@@ -43,5 +29,11 @@ public class NoteItemTouchCallback extends ItemTouchHelper.SimpleCallback {
         } else {
             mTouchHelper.onSwipeRight(viewHolder);
         }
+    }
+
+    @Override
+    public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+        mTouchHelper.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+        super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
     }
 }

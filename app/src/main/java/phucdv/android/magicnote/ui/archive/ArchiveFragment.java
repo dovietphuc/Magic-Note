@@ -1,7 +1,9 @@
 package phucdv.android.magicnote.ui.archive;
 
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 import phucdv.android.magicnote.R;
 import phucdv.android.magicnote.data.noteitem.Note;
 import phucdv.android.magicnote.ui.BaseListNoteFragment;
@@ -42,6 +45,11 @@ public class ArchiveFragment extends BaseListNoteFragment {
             }
         });
         return view;
+    }
+
+    @Override
+    public int getMenu() {
+        return R.menu.archive_menu;
     }
 
     public void onSwipeLeft(RecyclerView.ViewHolder viewHolder){
@@ -85,6 +93,27 @@ public class ArchiveFragment extends BaseListNoteFragment {
     public boolean onMove(RecyclerView recyclerView,
                           RecyclerView.ViewHolder viewHolder,
                           RecyclerView.ViewHolder target){
+        return false;
+    }
+
+    @Override
+    public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+        if(viewHolder.getLayoutPosition() >= mViewModel.getNotesInArchive().getValue().size()){
+            return;
+        }
+        new RecyclerViewSwipeDecorator.Builder(getContext(), c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                .addSwipeLeftLabel(getString(R.string.recycle_bin))
+                .addSwipeLeftActionIcon(R.drawable.ic_baseline_delete_white_24)
+                .addSwipeLeftBackgroundColor(getResources().getColor(R.color.to_trash))
+                .addSwipeRightLabel(getString(R.string.processing))
+                .addSwipeRightActionIcon(R.drawable.ic_baseline_emoji_objects_white_24)
+                .addSwipeRightBackgroundColor(getResources().getColor(R.color.to_processing))
+                .create()
+                .decorate();
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
         return false;
     }
 }

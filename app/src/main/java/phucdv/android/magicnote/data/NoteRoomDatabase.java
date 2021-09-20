@@ -5,6 +5,8 @@ import android.os.AsyncTask;
 
 import phucdv.android.magicnote.data.checkboxitem.CheckboxItem;
 import phucdv.android.magicnote.data.checkboxitem.CheckboxItemDao;
+import phucdv.android.magicnote.data.imageitem.ImageItem;
+import phucdv.android.magicnote.data.imageitem.ImageItemDao;
 import phucdv.android.magicnote.data.noteitem.Note;
 import phucdv.android.magicnote.data.noteitem.NoteDao;
 import phucdv.android.magicnote.data.textitem.TextItem;
@@ -15,17 +17,21 @@ import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 @Database(entities = {
         Note.class,
         TextItem.class,
-        CheckboxItem.class
-}, version = 4,  exportSchema = false)
+        CheckboxItem.class,
+        ImageItem.class
+}, version = 5,  exportSchema = false)
+@TypeConverters(Converters.class)
 public abstract class NoteRoomDatabase extends RoomDatabase {
     public abstract NoteDao noteDao();
     public abstract TextItemDao textItemDao();
     public abstract CheckboxItemDao checkboxItemDao();
+    public abstract ImageItemDao imageItemDao();
     private static NoteRoomDatabase INSTANCE;
 
     public static NoteRoomDatabase getDatabase(Context context){

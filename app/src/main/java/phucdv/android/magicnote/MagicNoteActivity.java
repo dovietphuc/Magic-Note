@@ -5,6 +5,7 @@ import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.widget.TextView;
 
 import com.google.android.material.bottomappbar.BottomAppBar;
@@ -23,7 +24,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import phucdv.android.magicnote.noteinterface.ShareComponents;
-import phucdv.android.magicnote.util.Constants;
 
 public class MagicNoteActivity extends AppCompatActivity implements ShareComponents {
 
@@ -35,13 +35,14 @@ public class MagicNoteActivity extends AppCompatActivity implements ShareCompone
     private BottomAppBar mBottomAppBar;
     private TextView mTitleBottomAppBar;
     private AnimatedVectorDrawable mAnimatedVectorDrawable;
+    private Toolbar mToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_magic_note);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        mToolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
 
         mDrawer = findViewById(R.id.drawer_layout);
         mNavigationView = findViewById(R.id.nav_view);
@@ -65,13 +66,6 @@ public class MagicNoteActivity extends AppCompatActivity implements ShareCompone
         });
         mFab = findViewById(R.id.fab);
         mAnimatedVectorDrawable = (AnimatedVectorDrawable) mFab.getDrawable();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.magic_note, menu);
-        return true;
     }
 
     @Override
@@ -122,5 +116,10 @@ public class MagicNoteActivity extends AppCompatActivity implements ShareCompone
     @Override
     public void navigate(int target, Bundle bundle) {
         mNavController.navigate(target, bundle);
+    }
+
+    @Override
+    public Toolbar getToolbar() {
+        return mToolbar;
     }
 }

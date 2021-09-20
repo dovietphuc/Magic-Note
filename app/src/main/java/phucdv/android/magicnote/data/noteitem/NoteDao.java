@@ -21,13 +21,13 @@ public interface NoteDao {
     @Query("SELECT * from note WHERE id = :id")
     public LiveData<Note> getNotesById(long id);
 
-    @Query("SELECT * from note WHERE is_archive = 0 AND is_deleted = 0")
+    @Query("SELECT * from note WHERE is_archive = 0 AND is_deleted = 0 ORDER BY is_pinned DESC, time_last_update DESC")
     public LiveData<List<Note>> getNotesInProcessing();
 
-    @Query("SELECT * from note WHERE is_archive = 1")
+    @Query("SELECT * from note WHERE is_archive = 1 ORDER BY is_pinned DESC, time_last_update DESC")
     public LiveData<List<Note>> getNotesInArchive();
 
-    @Query("SELECT * from note WHERE is_deleted = 1")
+    @Query("SELECT * from note WHERE is_deleted = 1 ORDER BY is_pinned DESC, time_last_update DESC")
     public LiveData<List<Note>> getNotesInTrash();
 
     @Insert (onConflict = OnConflictStrategy.IGNORE)
