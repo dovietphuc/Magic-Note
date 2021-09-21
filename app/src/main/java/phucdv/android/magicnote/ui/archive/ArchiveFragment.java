@@ -1,5 +1,6 @@
 package phucdv.android.magicnote.ui.archive;
 
+import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -58,16 +59,12 @@ public class ArchiveFragment extends BaseListNoteFragment {
         }
         Note note = mViewModel.getNotesInArchive().getValue()
                 .get(viewHolder.getLayoutPosition());
-        note.setIs_archive(false);
-        note.setIs_deleted(true);
-        mViewModel.updateNote(note);
+        mViewModel.moveToTrash(note);
         Snackbar.make(getView(), "Moved to trash", Snackbar.LENGTH_LONG)
                 .setAction(R.string.undo, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        note.setIs_archive(true);
-                        note.setIs_deleted(false);
-                        mViewModel.updateNote(note);
+                        mViewModel.moveToArchive(note);
                     }
                 }).show();
     }
@@ -77,16 +74,12 @@ public class ArchiveFragment extends BaseListNoteFragment {
         }
         Note note = mViewModel.getNotesInArchive().getValue()
                 .get(viewHolder.getLayoutPosition());
-        note.setIs_archive(false);
-        note.setIs_deleted(false);
-        mViewModel.updateNote(note);
+        mViewModel.moveToProcessing(note);
         Snackbar.make(getView(), "Moved to processing", Snackbar.LENGTH_LONG)
                 .setAction(R.string.undo, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        note.setIs_archive(true);
-                        note.setIs_deleted(false);
-                        mViewModel.updateNote(note);
+                        mViewModel.moveToArchive(note);
                     }
                 }).show();
     }
@@ -115,5 +108,15 @@ public class ArchiveFragment extends BaseListNoteFragment {
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         return false;
+    }
+
+    @Override
+    public String[] getPopupMenuItem(Note note) {
+        return new String[]{};
+    }
+
+    @Override
+    public void onPopupItemSelect(DialogInterface dialog, int which, Note note) {
+
     }
 }

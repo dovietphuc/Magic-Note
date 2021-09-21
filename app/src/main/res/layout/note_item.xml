@@ -6,49 +6,63 @@
     android:layout_margin="6dp"
     android:background="@drawable/radio_background"
     android:elevation="@dimen/cardview_default_elevation"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:padding="16dp" >
 
-    <TextView
-        android:id="@+id/time"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Last modify: dd/mm/yyyy hh:mm"
-        android:textAlignment="textEnd" />
-
-    <TextView
-        android:id="@+id/title"
+    <CheckBox
+        android:id="@+id/select_note_checkbox"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:maxHeight="100dp"
-        android:textAppearance="?attr/textAppearanceListItem"
-        android:textColor="@color/black"
-        android:textStyle="bold" />
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="end">
+        android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/hasCheckbox"
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Last modify: dd/mm/yyyy hh:mm"
+            android:textAlignment="textEnd" />
+
+        <TextView
+            android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            app:srcCompat="@drawable/ic_baseline_check_box_black_24" />
+            android:maxHeight="100dp"
+            android:textAppearance="?attr/textAppearanceListItem"
+            android:textColor="@color/black"
+            android:textStyle="bold" />
 
-        <ImageView
-            android:id="@+id/hasImage"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            app:srcCompat="@drawable/ic_baseline_image_black_24" />
+            android:layout_gravity="end">
 
-        <ImageView
-            android:id="@+id/hasPin"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            app:srcCompat="@drawable/ic_baseline_push_pin_black_24" />
+            <ImageView
+                android:id="@+id/hasCheckbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/ic_baseline_check_box_black_24" />
+
+            <ImageView
+                android:id="@+id/hasImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/ic_baseline_image_black_24" />
+
+            <ImageView
+                android:id="@+id/hasPin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/ic_baseline_push_pin_black_24" />
+        </LinearLayout>
+
     </LinearLayout>
+
 </LinearLayout>

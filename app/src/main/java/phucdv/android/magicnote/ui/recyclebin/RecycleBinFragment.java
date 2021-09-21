@@ -88,16 +88,12 @@ public class RecycleBinFragment extends BaseListNoteFragment {
         }
         Note note = mViewModel.getNotesInTrash().getValue()
                 .get(viewHolder.getLayoutPosition());
-        note.setIs_archive(false);
-        note.setIs_deleted(false);
-        mViewModel.updateNote(note);
+        mViewModel.moveToProcessing(note);
         Snackbar.make(getView(), getString(R.string.move_to_processing), Snackbar.LENGTH_LONG)
                 .setAction(R.string.undo, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        note.setIs_archive(false);
-                        note.setIs_deleted(true);
-                        mViewModel.updateNote(note);
+                        mViewModel.moveToTrash(note);
                     }
                 }).show();
     }
@@ -126,5 +122,15 @@ public class RecycleBinFragment extends BaseListNoteFragment {
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         return false;
+    }
+
+    @Override
+    public String[] getPopupMenuItem(Note note) {
+        return new String[]{};
+    }
+
+    @Override
+    public void onPopupItemSelect(DialogInterface dialog, int which, Note note) {
+
     }
 }

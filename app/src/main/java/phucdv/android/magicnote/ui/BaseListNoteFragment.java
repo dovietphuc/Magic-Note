@@ -1,6 +1,8 @@
 package phucdv.android.magicnote.ui;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.drawable.Animatable2;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
@@ -8,6 +10,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -22,15 +25,21 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.phucdvb.drawer.DrawerActivity;
+
 import phucdv.android.magicnote.R;
 import phucdv.android.magicnote.adapter.NoteItemRecyclerViewAdapter;
+import phucdv.android.magicnote.data.noteitem.Note;
+import phucdv.android.magicnote.noteinterface.OnItemLongClickListener;
 import phucdv.android.magicnote.noteinterface.ShareComponents;
 import phucdv.android.magicnote.noteinterface.TouchHelper;
+import phucdv.android.magicnote.ui.editnote.EditNoteFragment;
 import phucdv.android.magicnote.util.Constants;
 import phucdv.android.magicnote.util.KeyBoardController;
 import phucdv.android.magicnote.util.NoteItemTouchCallback;
 
-public abstract class BaseListNoteFragment extends Fragment implements View.OnClickListener, TouchHelper, Toolbar.OnMenuItemClickListener {
+public abstract class BaseListNoteFragment extends Fragment implements View.OnClickListener, TouchHelper, Toolbar.OnMenuItemClickListener, OnItemLongClickListener {
 
     protected RecyclerView mRecyclerView;
     protected NoteItemRecyclerViewAdapter mAdapter;
@@ -47,6 +56,7 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
             mRecyclerView = (RecyclerView) view;
             mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
             mAdapter = new NoteItemRecyclerViewAdapter();
+            mAdapter.setOnItemLongClickListener(this);
             mRecyclerView.setAdapter(mAdapter);
         }
 
@@ -90,4 +100,25 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
     }
 
     public abstract int getMenu();
+
+    public abstract String[] getPopupMenuItem(Note note);
+
+    public abstract void onPopupItemSelect(DialogInterface dialog, int which, Note note);
+
+    @Override
+    public boolean onItemLongClick(RecyclerView.ViewHolder holder, int pos) {
+        Note note = mAdapter.getItemAt(pos);
+        String[] option = getPopupMenuItem(note);
+        AlertDialog.Builder builder = new MaterialAlertDialogBuilder(getContext())
+                .setTitle(R.string.what_you_want_to_do)
+                .setItems(option, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        onPopupItemSelect(dialog, which, note);
+                    }
+                });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+        return true;
+    }
 }

@@ -85,4 +85,27 @@ public class NoteRepository {
     public void updateListNote(List<Note> notes){
         new AsyncTaskUtil.updateListNoteAsyncTask(mNoteDao).execute(notes);
     }
+
+    public void moveToArchive(Note note){
+        note.setIs_archive(true);
+        note.setIs_deleted(false);
+        updateNote(note);
+    }
+
+    public void moveToTrash(Note note){
+        note.setIs_archive(false);
+        note.setIs_deleted(true);
+        updateNote(note);
+    }
+
+    public void moveToProcessing(Note note){
+        note.setIs_archive(false);
+        note.setIs_deleted(false);
+        updateNote(note);
+    }
+
+    public void pinOrUnpin(Note note){
+        note.setIs_pinned(!note.isIs_pinned());
+        updateNote(note);
+    }
 }

@@ -38,6 +38,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
 import com.phucdvb.drawer.DrawerActivity;
 
 import java.io.File;
@@ -73,6 +74,7 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener, 
     protected EditNoteViewModel mViewModel;
     protected ShareComponents mShareComponents;
     protected Note mNote;
+    protected boolean mIsDelete = false;
     protected Observer<List<TextItem>> mListTextItemObserver = new Observer<List<TextItem>>() {
         @Override
         public void onChanged(List<TextItem> textItems) {
@@ -282,7 +284,9 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener, 
 
     @Override
     public void onDestroy() {
-        mViewModel.onSave(mAdapter, mNote);
+        if(!mIsDelete) {
+            mViewModel.onSave(mAdapter, mNote);
+        }
         if (getContext() instanceof ShareComponents) {
             mShareComponents.setFabDrawable(R.drawable.avd_add_to_done);
         }
@@ -358,6 +362,28 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener, 
                 mViewModel.setIsArchive(false);
                 return true;
             case R.id.action_completely_delete:
+                if(getActivity() != null) {
+                    AlertDialog.Builder builder = new MaterialAlertDialogBuilder(getContext())
+                            .setTitle(R.string.warning)
+                            .setMessage(R.string.warning_delete)
+                            .setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    mIsDelete = true;
+                                    mViewModel.deleteNote(mViewModel.getParentId().getValue());
+                                    getActivity().onBackPressed();
+                                    Snackbar.make(getView(), getString(R.string.delete), Snackbar.LENGTH_LONG).show();
+                                }
+                            })
+                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                    AlertDialog alertDialog = builder.create();
+                    alertDialog.show();
+                }
                 return true;
             case R.id.action_undo:
                 mAdapter.undo();

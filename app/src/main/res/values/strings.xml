@@ -51,4 +51,7 @@
     <string name="unpin">Unpin</string>
     <string name="share">Share</string>
     <string name="restore">Restore</string>
+    <string name="select_note">Select note</string>
+    <string name="select_all">Select all</string>
+    <string name="what_you_want_to_do">What you want to do?</string>
 </resources>
