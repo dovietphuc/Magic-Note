@@ -9,7 +9,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -22,9 +24,11 @@ import java.util.List;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 import phucdv.android.magicnote.R;
+import phucdv.android.magicnote.adapter.ColorPickerAdapter;
 import phucdv.android.magicnote.data.BaseItemRepository;
 import phucdv.android.magicnote.data.noteitem.Note;
 import phucdv.android.magicnote.ui.BaseListNoteFragment;
+import phucdv.android.magicnote.ui.colorpicker.ColorPickerDialog;
 import phucdv.android.magicnote.util.NoteItemTouchCallback;
 
 public class ProcessingFragment extends BaseListNoteFragment {
@@ -99,22 +103,123 @@ public class ProcessingFragment extends BaseListNoteFragment {
                 mItemTouchHelper.attachToRecyclerView(null);
                 mAdapter.startSelect();
                 mShareComponents.getToolbar().getMenu().clear();
+                mShareComponents.getToolbar().inflateMenu(R.menu.processing_select_menu);
                 return true;
             case R.id.action_select_all:
                 mItemTouchHelper.attachToRecyclerView(null);
                 mAdapter.startSelectAll();
                 mShareComponents.getToolbar().getMenu().clear();
+                mShareComponents.getToolbar().inflateMenu(R.menu.processing_select_menu);
+                return true;
+            case R.id.action_change_color:
+                List<Note> notes = mAdapter.getSelectedList();
+                ColorPickerDialog colorPickerDialog = new ColorPickerDialog();
+                colorPickerDialog.setOnColorPickerListener(new ColorPickerAdapter.OnColorPickerListener() {
+                    @Override
+                    public void onColorPicked(int color) {
+                        mProcessingViewModel.updateColor(color, notes);
+                    }
+
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        doneSelect();
+                    }
+                });
+                colorPickerDialog.showDialog((AppCompatActivity) getActivity());
+                return true;
+            case R.id.action_to_archive:
+                AlertDialog.Builder builder = new MaterialAlertDialogBuilder(getContext())
+                        .setTitle(R.string.archive)
+                        .setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mProcessingViewModel.moveToArchive(mAdapter.getSelectedList());
+                                Snackbar.make(getView(), getString(R.string.move_to_archive), Snackbar.LENGTH_LONG).show();
+                                doneSelect();
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+                return true;
+            case R.id.action_to_trash:
+                builder = new MaterialAlertDialogBuilder(getContext())
+                        .setTitle(R.string.recycle_bin)
+                        .setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mProcessingViewModel.moveToTrash(mAdapter.getSelectedList());
+                                Snackbar.make(getView(), getString(R.string.move_to_trash), Snackbar.LENGTH_LONG).show();
+                                doneSelect();
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog = builder.create();
+                alertDialog.show();
+                return true;
+            case R.id.action_pin:
+                mProcessingViewModel.pin(mAdapter.getSelectedList());
+                doneSelect();
+                return true;
+            case R.id.action_unpin:
+                mProcessingViewModel.unpin(mAdapter.getSelectedList());
+                doneSelect();
+                return true;
+            case R.id.action_completely_delete:
+                builder = new MaterialAlertDialogBuilder(getContext())
+                        .setTitle(R.string.warning)
+                        .setMessage(R.string.warning_delete)
+                        .setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mProcessingViewModel.deleteListNote(mAdapter.getSelectedList());
+                                Snackbar.make(getView(), getString(R.string.delete), Snackbar.LENGTH_LONG).show();
+                                doneSelect();
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog = builder.create();
+                alertDialog.show();
+                return true;
+            case R.id.action_share:
+                doneSelect();
+                return true;
+            case R.id.action_done_select:
+                doneSelect();
                 return true;
         }
         return false;
     }
 
+    public void doneSelect(){
+        mAdapter.endSelect();
+        mShareComponents.getToolbar().getMenu().clear();
+        mShareComponents.getToolbar().inflateMenu(R.menu.processing_menu);
+        mItemTouchHelper.attachToRecyclerView(mRecyclerView);
+    }
+
     @Override
     public String[] getPopupMenuItem(Note note) {
         return new String[]{
+                getString(R.string.change_color),
                 note.isIs_pinned() ? getString(R.string.unpin) : getString(R.string.pin)
                 , getString(R.string.share)
-                , getString(R.string.move_to_archive)
+                , getString(R.string.archive)
                 , getString(R.string.recycle_bin)
                 , getString(R.string.completely_delete)};
     }
@@ -123,17 +228,31 @@ public class ProcessingFragment extends BaseListNoteFragment {
     public void onPopupItemSelect(DialogInterface dialog, int which, Note note) {
         switch (which){
             case 0:
-                mProcessingViewModel.pinOrUnpin(note);
+                ColorPickerDialog colorPickerDialog = new ColorPickerDialog();
+                colorPickerDialog.setOnColorPickerListener(new ColorPickerAdapter.OnColorPickerListener() {
+                    @Override
+                    public void onColorPicked(int color) {
+                        mProcessingViewModel.updateColor(color, note);
+                    }
+
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                    }
+                });
+                colorPickerDialog.showDialog((AppCompatActivity) getActivity());
                 break;
             case 1:
+                mProcessingViewModel.pinOrUnpin(note);
                 break;
             case 2:
-                mProcessingViewModel.moveToArchive(note);
                 break;
             case 3:
-                mProcessingViewModel.moveToTrash(note);
+                mProcessingViewModel.moveToArchive(note);
                 break;
             case 4:
+                mProcessingViewModel.moveToTrash(note);
+                break;
+            case 5:
                 AlertDialog.Builder builder = new MaterialAlertDialogBuilder(getContext())
                         .setTitle(R.string.warning)
                         .setMessage(R.string.warning_delete)

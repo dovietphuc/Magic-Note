@@ -1,6 +1,7 @@
 package phucdv.android.magicnote.ui.colorpicker;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,5 +53,11 @@ public class ColorPickerDialog extends DialogFragment {
     public void showDialog(AppCompatActivity activity) {
         FragmentManager fm = activity.getSupportFragmentManager();
         show(fm, "color_dialog");
+    }
+
+    @Override
+    public void onDismiss(@NonNull DialogInterface dialog) {
+        mOnColorPickerListener.onDismiss(dialog);
+        super.onDismiss(dialog);
     }
 }

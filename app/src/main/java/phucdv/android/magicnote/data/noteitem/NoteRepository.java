@@ -10,12 +10,16 @@ import java.util.List;
 
 import phucdv.android.magicnote.data.NoteRoomDatabase;
 import phucdv.android.magicnote.data.checkboxitem.CheckboxItemDao;
+import phucdv.android.magicnote.data.imageitem.ImageItemDao;
 import phucdv.android.magicnote.data.textitem.TextItemDao;
 import phucdv.android.magicnote.noteinterface.AsyncResponse;
 import phucdv.android.magicnote.util.AsyncTaskUtil;
 
 public class NoteRepository {
     private NoteDao mNoteDao;
+    private TextItemDao mTextItemDao;
+    private CheckboxItemDao mCheckboxItemDao;
+    private ImageItemDao mImageItemDao;
     private LiveData<List<Note>> mAllNotes;
     private LiveData<List<Note>> mProcessingNotes;
     private LiveData<List<Note>> mArchiveNotes;
@@ -26,6 +30,9 @@ public class NoteRepository {
     public NoteRepository(Application application){
         NoteRoomDatabase db = NoteRoomDatabase.getDatabase(application);
         mNoteDao = db.noteDao();
+        mTextItemDao = db.textItemDao();
+        mCheckboxItemDao = db.checkboxItemDao();
+        mImageItemDao = db.imageItemDao();
         mAllNotes = mNoteDao.getNotes();
         mProcessingNotes = mNoteDao.getNotesInProcessing();
         mArchiveNotes = mNoteDao.getNotesInArchive();
@@ -75,7 +82,15 @@ public class NoteRepository {
     }
 
     public void deleteNote(long id){
-        new AsyncTaskUtil.deleteNoteAsyncTask(mNoteDao).execute(id);
+        new AsyncTaskUtil.deleteNoteAsyncTask(mNoteDao, mTextItemDao, mCheckboxItemDao, mImageItemDao).execute(id);
+    }
+
+    public void deleteNote(Note note){
+        new AsyncTaskUtil.deleteNoteAsyncTask(mNoteDao, mTextItemDao, mCheckboxItemDao, mImageItemDao).execute(note.getId());
+    }
+
+    public void deleteListNote(List<Note> notes){
+        new AsyncTaskUtil.deleteListNoteAsyncTask(mNoteDao, mTextItemDao, mCheckboxItemDao, mImageItemDao).execute(notes);
     }
 
     public void updateNote(Note note){
@@ -104,8 +119,68 @@ public class NoteRepository {
         updateNote(note);
     }
 
+    public void moveToArchive(List<Note> notes){
+        for(Note note : notes) {
+            note.setIs_archive(true);
+            note.setIs_deleted(false);
+        }
+        updateListNote(notes);
+    }
+
+    public void moveToTrash(List<Note> notes){
+        for(Note note : notes) {
+            note.setIs_archive(false);
+            note.setIs_deleted(true);
+        }
+        updateListNote(notes);
+    }
+
+    public void moveToProcessing(List<Note> notes){
+        for(Note note : notes) {
+            note.setIs_archive(false);
+            note.setIs_deleted(false);
+        }
+        updateListNote(notes);
+    }
+
     public void pinOrUnpin(Note note){
         note.setIs_pinned(!note.isIs_pinned());
         updateNote(note);
+    }
+
+    public void pin(Note note){
+        note.setIs_pinned(true);
+        updateNote(note);
+    }
+
+    public void unpin(Note note){
+        note.setIs_pinned(false);
+        updateNote(note);
+    }
+
+    public void updateColor(int color, Note note){
+        note.setColor(color);
+        updateNote(note);
+    }
+
+    public void pin(List<Note> notes){
+        for(Note note : notes){
+            note.setIs_pinned(true);
+        }
+        updateListNote(notes);
+    }
+
+    public void unpin(List<Note> notes){
+        for(Note note : notes){
+            note.setIs_pinned(false);
+        }
+        updateListNote(notes);
+    }
+
+    public void updateColor(int color, List<Note> notes){
+        for(Note note : notes){
+            note.setColor(color);
+        }
+        updateListNote(notes);
     }
 }

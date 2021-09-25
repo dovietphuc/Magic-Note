@@ -136,15 +136,52 @@ public class AsyncTaskUtil {
 
     public static class deleteNoteAsyncTask extends AsyncTask<Long, Void, Void> {
 
-        private NoteDao mAsyncTaskDao;
+        private NoteDao mNoteDao;
+        private TextItemDao mTextItemDao;
+        private CheckboxItemDao mCheckboxItemDao;
+        private ImageItemDao mImageItemDao;
 
-        public deleteNoteAsyncTask(NoteDao dao) {
-            mAsyncTaskDao = dao;
+        public deleteNoteAsyncTask(NoteDao noteDao, TextItemDao textItemDao,
+                                   CheckboxItemDao checkboxItemDao, ImageItemDao imageItemDao) {
+            mNoteDao = noteDao;
+            mTextItemDao = textItemDao;
+            mCheckboxItemDao = checkboxItemDao;
+            mImageItemDao = imageItemDao;
         }
 
         @Override
         protected Void doInBackground(final Long... params) {
-            mAsyncTaskDao.deleteNoteByID(params[0]);
+            mNoteDao.deleteNoteByID(params[0]);
+            mTextItemDao.deleteByParentId(params[0]);
+            mCheckboxItemDao.deleteByParentId(params[0]);
+            mImageItemDao.deleteByParentId(params[0]);
+            return null;
+        }
+    }
+
+    public static class deleteListNoteAsyncTask extends AsyncTask<List<Note>, Void, Void> {
+
+        private NoteDao mNoteDao;
+        private TextItemDao mTextItemDao;
+        private CheckboxItemDao mCheckboxItemDao;
+        private ImageItemDao mImageItemDao;
+
+        public deleteListNoteAsyncTask(NoteDao noteDao, TextItemDao textItemDao,
+                                       CheckboxItemDao checkboxItemDao, ImageItemDao imageItemDao) {
+            mNoteDao = noteDao;
+            mTextItemDao = textItemDao;
+            mCheckboxItemDao = checkboxItemDao;
+            mImageItemDao = imageItemDao;
+        }
+
+        @Override
+        protected Void doInBackground(final List<Note>... params) {
+            for(Note note : params[0]){
+                mNoteDao.deleteNoteByID(note.getId());
+                mTextItemDao.deleteByParentId(note.getId());
+                mCheckboxItemDao.deleteByParentId(note.getId());
+                mImageItemDao.deleteByParentId(note.getId());
+            }
             return null;
         }
     }

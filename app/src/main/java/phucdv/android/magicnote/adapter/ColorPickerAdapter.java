@@ -1,5 +1,6 @@
 package phucdv.android.magicnote.adapter;
 
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -85,5 +86,6 @@ public class ColorPickerAdapter extends RecyclerView.Adapter<ColorPickerAdapter.
 
     public interface OnColorPickerListener{
         public void onColorPicked(int color);
+        public void onDismiss(DialogInterface dialog);
     }
 }

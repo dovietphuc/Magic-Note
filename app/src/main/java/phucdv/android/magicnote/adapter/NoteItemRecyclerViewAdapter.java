@@ -42,6 +42,7 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
 
     private List<Note> mValues;
     private boolean[] mSelectedPos;
+    private Note[] mNoteArr;
 
     public NoteItemRecyclerViewAdapter(List<Note> items) {
         mValues = items;
@@ -53,6 +54,8 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
 
     public void setValues(List<Note> values){
         mValues = values;
+        mNoteArr = new Note[values.size()];
+        values.toArray(mNoteArr);
         mSelectedPos = new boolean[mValues.size()];
         notifyDataSetChanged();
     }
@@ -75,6 +78,21 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         setMode(MODE_SELECT_ALL);
         Arrays.fill(mSelectedPos, true);
         notifyDataSetChanged();
+    }
+
+    public void endSelect(){
+        setMode(MODE_NORMAL);
+        notifyDataSetChanged();
+    }
+
+    public List<Note> getSelectedList(){
+        List<Note> notes = new ArrayList<>();
+        for(int i = 0; i < mSelectedPos.length; i++){
+            if(mSelectedPos[i]){
+                notes.add(mNoteArr[i]);
+            }
+        }
+        return notes;
     }
 
     public void setOnItemLongClickListener(OnItemLongClickListener onItemLongClickListener){

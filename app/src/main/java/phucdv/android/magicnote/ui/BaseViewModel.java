@@ -41,9 +41,14 @@ public abstract class BaseViewModel extends AndroidViewModel {
 
     public void deleteNote(long id){
         mNoteRepository.deleteNote(id);
-        mBaseItemRepository.deleteTextByParentId(id);
-        mBaseItemRepository.deleteCheckboxByParentId(id);
-        mBaseItemRepository.deleteImageItemByParentId(id);
+    }
+
+    public void deleteNote(Note note){
+        mNoteRepository.deleteNote(note);
+    }
+
+    public void deleteListNote(List<Note> notes){
+        mNoteRepository.deleteListNote(notes);
     }
 
     public void moveToArchive(Note note){
@@ -58,7 +63,43 @@ public abstract class BaseViewModel extends AndroidViewModel {
         mNoteRepository.moveToProcessing(note);
     }
 
+    public void moveToArchive(List<Note> notes){
+        mNoteRepository.moveToArchive(notes);
+    }
+
+    public void moveToTrash(List<Note> notes){
+        mNoteRepository.moveToTrash(notes);
+    }
+
+    public void moveToProcessing(List<Note> notes){
+        mNoteRepository.moveToProcessing(notes);
+    }
+
     public void pinOrUnpin(Note note){
         mNoteRepository.pinOrUnpin(note);
+    }
+
+    public void pin(Note note){
+        mNoteRepository.pin(note);
+    }
+
+    public void unpin(Note note){
+        mNoteRepository.unpin(note);
+    }
+
+    public void updateColor(int color, Note note){
+        mNoteRepository.updateColor(color, note);
+    }
+
+    public void pin(List<Note> notes){
+        mNoteRepository.pin(notes);
+    }
+
+    public void unpin(List<Note> notes){
+        mNoteRepository.unpin(notes);
+    }
+
+    public void updateColor(int color, List<Note> notes){
+        mNoteRepository.updateColor(color, notes);
     }
 }

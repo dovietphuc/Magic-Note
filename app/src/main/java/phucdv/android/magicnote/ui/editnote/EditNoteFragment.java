@@ -318,6 +318,11 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener, 
                     public void onColorPicked(int color) {
                         mViewModel.setCurrentColor(color);
                     }
+
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+
+                    }
                 });
                 colorPickerDialog.showDialog((AppCompatActivity) getActivity());
                 return true;

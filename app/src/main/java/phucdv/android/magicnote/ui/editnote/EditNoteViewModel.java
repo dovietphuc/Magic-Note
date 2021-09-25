@@ -135,9 +135,6 @@ public class EditNoteViewModel extends AndroidViewModel {
 
     public void deleteNote(long id){
         mNoteRepository.deleteNote(id);
-        mBaseItemRepository.deleteTextByParentId(id);
-        mBaseItemRepository.deleteCheckboxByParentId(id);
-        mBaseItemRepository.deleteImageItemByParentId(id);
     }
 
     public void updateTextItem(TextItem item){
