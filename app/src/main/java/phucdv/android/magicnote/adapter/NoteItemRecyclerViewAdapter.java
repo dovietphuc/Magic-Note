@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -27,7 +29,8 @@ import java.util.List;
  * {@link RecyclerView.Adapter} that can display a {@link Note}.
  * TODO: Replace the implementation with code for your data type.
  */
-public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
+        implements Filterable {
 
     private final int TYPE_DEFAULT = 0;
     private final int TYPE_BLANK = 1;
@@ -41,22 +44,21 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     private OnItemLongClickListener mOnItemLongClickListener;
 
     private List<Note> mValues;
+    private List<Note> mValuesFilted;
     private boolean[] mSelectedPos;
     private Note[] mNoteArr;
 
-    public NoteItemRecyclerViewAdapter(List<Note> items) {
-        mValues = items;
-    }
-
     public NoteItemRecyclerViewAdapter() {
         mValues = new ArrayList<>();
+        mValuesFilted = mValues;
     }
 
     public void setValues(List<Note> values){
         mValues = values;
+        mValuesFilted = mValues;
         mNoteArr = new Note[values.size()];
         values.toArray(mNoteArr);
-        mSelectedPos = new boolean[mValues.size()];
+        mSelectedPos = new boolean[mValuesFilted.size()];
         notifyDataSetChanged();
     }
 
@@ -100,7 +102,7 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     }
 
     public Note getItemAt(int index){
-        return mValues.get(index);
+        return mValuesFilted.get(index);
     }
 
     @Override
@@ -126,7 +128,7 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         if(holder instanceof ViewHolder){
-            Note note = mValues.get(position);
+            Note note = mValuesFilted.get(position);
             Calendar calendar = note.getTime_last_update();
             String time = calendar.get(Calendar.DAY_OF_MONTH) + "/" + (calendar.get(Calendar.MONTH) + 1)
                     + "/" + calendar.get(Calendar.YEAR) + " " + calendar.get(Calendar.HOUR_OF_DAY)
@@ -138,7 +140,40 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
 
     @Override
     public int getItemCount() {
-        return mValues.size() + 1;
+        return mValuesFilted.size() + 1;
+    }
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence charSequence) {
+                String charString = charSequence.toString();
+                if (charString.isEmpty()) {
+                    mValuesFilted = mValues;
+                } else {
+                    List<Note> filteredList = new ArrayList<>();
+                    for (Note note : mValues) {
+                        if (note.getTitle().toLowerCase().contains(charString.toLowerCase())
+                                || note.getTitle().contains(charSequence)) {
+                            filteredList.add(note);
+                        }
+                    }
+
+                    mValuesFilted = filteredList;
+                }
+
+                FilterResults filterResults = new FilterResults();
+                filterResults.values = mValuesFilted;
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+                mValuesFilted = (List<Note>) filterResults.values;
+                notifyDataSetChanged();
+            }
+        };
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -167,7 +202,7 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
                     if(mMode == MODE_NORMAL) {
                         if (view.getContext() instanceof ShareComponents) {
                             Bundle bundle = new Bundle();
-                            bundle.putLong(Constants.ARG_PARENT_ID, mValues.get(getLayoutPosition()).getId());
+                            bundle.putLong(Constants.ARG_PARENT_ID, mValuesFilted.get(getLayoutPosition()).getId());
                             ((ShareComponents) view.getContext()).navigate(R.id.action_global_editNoteFragment, bundle);
                         }
                     } else {
@@ -197,7 +232,7 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         }
 
         public long getNoteId(int position){
-            return mValues.get(position).getId();
+            return mValuesFilted.get(position).getId();
         }
 
         public void bind(String title, String time, int color, boolean hasCheckbox, boolean hasImage, boolean hasPin){

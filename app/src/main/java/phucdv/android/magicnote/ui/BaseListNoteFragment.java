@@ -1,21 +1,18 @@
 package phucdv.android.magicnote.ui;
 
+import android.annotation.SuppressLint;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.graphics.drawable.Animatable2;
-import android.graphics.drawable.AnimatedVectorDrawable;
-import android.graphics.drawable.Drawable;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,9 +21,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AutoCompleteTextView;
+import android.widget.TextView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.phucdvb.drawer.DrawerActivity;
+
+import java.lang.reflect.Field;
+import java.util.List;
 
 import phucdv.android.magicnote.R;
 import phucdv.android.magicnote.adapter.NoteItemRecyclerViewAdapter;
@@ -34,10 +35,8 @@ import phucdv.android.magicnote.data.noteitem.Note;
 import phucdv.android.magicnote.noteinterface.OnItemLongClickListener;
 import phucdv.android.magicnote.noteinterface.ShareComponents;
 import phucdv.android.magicnote.noteinterface.TouchHelper;
-import phucdv.android.magicnote.ui.editnote.EditNoteFragment;
 import phucdv.android.magicnote.util.Constants;
 import phucdv.android.magicnote.util.KeyBoardController;
-import phucdv.android.magicnote.util.NoteItemTouchCallback;
 
 public abstract class BaseListNoteFragment extends Fragment implements View.OnClickListener, TouchHelper, Toolbar.OnMenuItemClickListener, OnItemLongClickListener {
 
@@ -51,14 +50,12 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
         View view = inflater.inflate(R.layout.fragment_base_list_note_list, container, false);
 
         // Set the adapter
-        if (view instanceof RecyclerView) {
-            Context context = view.getContext();
-            mRecyclerView = (RecyclerView) view;
-            mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-            mAdapter = new NoteItemRecyclerViewAdapter();
-            mAdapter.setOnItemLongClickListener(this);
-            mRecyclerView.setAdapter(mAdapter);
-        }
+        Context context = view.getContext();
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.list);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+        mAdapter = new NoteItemRecyclerViewAdapter();
+        mAdapter.setOnItemLongClickListener(this);
+        mRecyclerView.setAdapter(mAdapter);
 
         mShareComponents = (ShareComponents) getContext();
         setHasOptionsMenu(true);
@@ -83,6 +80,26 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(getMenu(), menu);
         mShareComponents.getToolbar().setOnMenuItemClickListener(this);
+        // Associate searchable configuration with the SearchView
+        SearchManager manager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
+        SearchView search = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        search.setSearchableInfo(manager.getSearchableInfo(getActivity().getComponentName()));
+
+        // listening to search query text change
+        search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // filter recycler view when query submitted
+                mAdapter.getFilter().filter(query);
+                return false;
+            }
+            @Override
+            public boolean onQueryTextChange(String query) {
+                // filter recycler view when text is changed
+                mAdapter.getFilter().filter(query);
+                return false;
+            }
+        });
     }
 
     @Override
@@ -120,5 +137,11 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
         return true;
+    }
+
+    public void notifyListChange(List<Note> notes){
+        mShareComponents.getBottomAppBarTitle().setText(
+                notes.size() + " " + ((notes.size() > 1)
+                        ? getString(R.string.notes) : getString(R.string.note)));
     }
 }

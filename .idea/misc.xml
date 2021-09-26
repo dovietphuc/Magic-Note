@@ -13,6 +13,7 @@
         <entry key="..\:/Android/MagicNote/HandDrawer/src/main/res/layout/activity_drawer.xml" value="0.5" />
         <entry key="..\:/Android/MagicNote/app/src/main/res/drawable/avd_add_to_done.xml" value="0.24259259259259258" />
         <entry key="..\:/Android/MagicNote/app/src/main/res/drawable/avd_done_to_add.xml" value="0.24259259259259258" />
+        <entry key="..\:/Android/MagicNote/app/src/main/res/drawable/cursor.xml" value="0.18425925925925926" />
         <entry key="..\:/Android/MagicNote/app/src/main/res/drawable/ic_baseline_add_24.xml" value="0.24259259259259258" />
         <entry key="..\:/Android/MagicNote/app/src/main/res/drawable/ic_baseline_add_alarm_24.xml" value="0.23425925925925925" />
         <entry key="..\:/Android/MagicNote/app/src/main/res/drawable/ic_baseline_add_photo_alternate_24.xml" value="0.24074074074074073" />
@@ -32,10 +33,13 @@
         <entry key="..\:/Android/MagicNote/app/src/main/res/layout/checkbox_item.xml" value="0.36666666666666664" />
         <entry key="..\:/Android/MagicNote/app/src/main/res/layout/color_picker_item.xml" value="0.67" />
         <entry key="..\:/Android/MagicNote/app/src/main/res/layout/color_picker_layout.xml" value="0.5" />
+        <entry key="..\:/Android/MagicNote/app/src/main/res/layout/content_main.xml" value="0.36666666666666664" />
         <entry key="..\:/Android/MagicNote/app/src/main/res/layout/edit_note_fragment.xml" value="0.36666666666666664" />
+        <entry key="..\:/Android/MagicNote/app/src/main/res/layout/fragment_base_list_note_list.xml" value="0.36666666666666664" />
         <entry key="..\:/Android/MagicNote/app/src/main/res/layout/fragment_date_time_picker_dialog.xml" value="0.67" />
         <entry key="..\:/Android/MagicNote/app/src/main/res/layout/image_item.xml" value="0.36666666666666664" />
         <entry key="..\:/Android/MagicNote/app/src/main/res/layout/note_item.xml" value="0.36666666666666664" />
+        <entry key="..\:/Android/MagicNote/app/src/main/res/layout/quick_filter.xml" value="0.5" />
         <entry key="..\:/Android/MagicNote/app/src/main/res/layout/text_item.xml" value="0.36666666666666664" />
         <entry key="..\:/Android/MagicNote/app/src/main/res/menu/archive_menu.xml" value="0.18958333333333333" />
         <entry key="..\:/Android/MagicNote/app/src/main/res/menu/archive_select_menu.xml" value="0.36666666666666664" />

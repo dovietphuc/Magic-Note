@@ -48,7 +48,7 @@ public class ArchiveFragment extends BaseListNoteFragment {
             @Override
             public void onChanged(List<Note> notes) {
                 mAdapter.setValues(notes);
-                mShareComponents.getBottomAppBarTitle().setText(notes.size() + " " + getString(R.string.note));
+                notifyListChange(notes);
             }
         });
         return view;

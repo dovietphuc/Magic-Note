@@ -16,6 +16,7 @@
     <string name="back_up">Back up</string>
     <string name="undo">Undo</string>
     <string name="redo">Redo</string>
+    <string name="notes">Notes</string>
     <string name="note">Note</string>
     <string name="add_checkbox">Add checkbox</string>
     <string name="text_here">Text here...</string>
