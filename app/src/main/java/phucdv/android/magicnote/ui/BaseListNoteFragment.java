@@ -1,5 +1,7 @@
 package phucdv.android.magicnote.ui;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.Context;
@@ -19,9 +21,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -43,7 +48,8 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
     protected RecyclerView mRecyclerView;
     protected NoteItemRecyclerViewAdapter mAdapter;
     protected ShareComponents mShareComponents;
-
+    protected View mQuickFilter;
+    protected boolean mClosing = false;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -56,6 +62,16 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
         mAdapter = new NoteItemRecyclerViewAdapter();
         mAdapter.setOnItemLongClickListener(this);
         mRecyclerView.setAdapter(mAdapter);
+
+        mQuickFilter = view.findViewById(R.id.quick_filter);
+        ImageButton filterCheckbox = mQuickFilter.findViewById(R.id.filter_checkbox);
+        filterCheckbox.setOnClickListener(this);
+        ImageButton filterImage = mQuickFilter.findViewById(R.id.filter_image);
+        filterImage.setOnClickListener(this);
+        ImageButton filterColor = mQuickFilter.findViewById(R.id.filter_color);
+        filterColor.setOnClickListener(this);
+        ImageButton filterLabel = mQuickFilter.findViewById(R.id.filter_label);
+        filterLabel.setOnClickListener(this);
 
         mShareComponents = (ShareComponents) getContext();
         setHasOptionsMenu(true);
@@ -84,7 +100,33 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
         SearchManager manager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
         SearchView search = (SearchView) menu.findItem(R.id.action_search).getActionView();
         search.setSearchableInfo(manager.getSearchableInfo(getActivity().getComponentName()));
-
+        search.setOnSearchClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mQuickFilter.setVisibility(View.VISIBLE);
+                mQuickFilter.animate()
+                        .translationY(0);
+            }
+        });
+        search.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                mClosing = true;
+                mQuickFilter.animate()
+                        .translationY(-mQuickFilter.getHeight())
+                        .setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                super.onAnimationEnd(animation);
+                                if(mClosing) {
+                                    mQuickFilter.setVisibility(View.GONE);
+                                    mClosing = false;
+                                }
+                            }
+                        });
+                return false;
+            }
+        });
         // listening to search query text change
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -112,6 +154,17 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
                     bundle.putLong(Constants.ARG_PARENT_ID, Constants.UNKNOW_PARENT_ID);
                     mShareComponents.navigate(R.id.action_global_editNoteFragment, bundle);
                 }
+                break;
+            case R.id.filter_checkbox:
+                mAdapter.filter(mAdapter.ACTION_FILTER_CHECKBOX, 0, true);
+                break;
+            case R.id.filter_image:
+                mAdapter.filter(mAdapter.ACTION_FILTER_IMAGE, 0, true);
+                break;
+            case R.id.filter_color:
+                mAdapter.filter(mAdapter.ACTION_FILTER_COLOR, Color.RED, false);
+                break;
+            case R.id.filter_label:
                 break;
         }
     }
@@ -143,5 +196,14 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
         mShareComponents.getBottomAppBarTitle().setText(
                 notes.size() + " " + ((notes.size() > 1)
                         ? getString(R.string.notes) : getString(R.string.note)));
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.action_search:
+                return true;
+        }
+        return false;
     }
 }

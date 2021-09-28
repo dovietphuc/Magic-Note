@@ -218,7 +218,7 @@ public class ArchiveFragment extends BaseListNoteFragment {
                 doneSelect();
                 return true;
         }
-        return false;
+        return super.onMenuItemClick(item);
     }
 
     public void doneSelect(){

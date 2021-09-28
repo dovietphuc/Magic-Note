@@ -58,4 +58,5 @@
     <string name="done">Done</string>
     <string name="move_to_trash">Moved to trash</string>
     <string name="clear_trash">Clear trash</string>
+    <string name="search">Search</string>
 </resources>

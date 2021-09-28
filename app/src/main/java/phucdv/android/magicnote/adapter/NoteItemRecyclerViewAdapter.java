@@ -32,6 +32,12 @@ import java.util.List;
 public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         implements Filterable {
 
+    public final int ACTION_FILTER_CHECKBOX = 0;
+    public final int ACTION_FILTER_IMAGE = 1;
+    public final int ACTION_FILTER_COLOR = 2;
+    public final int ACTION_FILTER_LABEL = 3;
+    public final int COLOR_NONE = -1;
+
     private final int TYPE_DEFAULT = 0;
     private final int TYPE_BLANK = 1;
 
@@ -47,6 +53,12 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     private List<Note> mValuesFilted;
     private boolean[] mSelectedPos;
     private Note[] mNoteArr;
+
+    private boolean mFilterCheckbox = false;
+    private boolean mFilterImage = false;
+    private int mFilterColor = COLOR_NONE;
+    private int mFilterLabel = -1;
+    private String mLastTextSearch = "";
 
     public NoteItemRecyclerViewAdapter() {
         mValues = new ArrayList<>();
@@ -149,6 +161,7 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
             @Override
             protected FilterResults performFiltering(CharSequence charSequence) {
                 String charString = charSequence.toString();
+                mLastTextSearch = charString;
                 if (charString.isEmpty()) {
                     mValuesFilted = mValues;
                 } else {
@@ -174,6 +187,39 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
                 notifyDataSetChanged();
             }
         };
+    }
+
+    public void filter(int action, int value, boolean isOn){
+        switch (action){
+            case ACTION_FILTER_CHECKBOX:
+                mFilterCheckbox = isOn;
+                break;
+            case ACTION_FILTER_IMAGE:
+                mFilterImage = isOn;
+                break;
+            case ACTION_FILTER_COLOR:
+                mFilterColor = value;
+                break;
+            case ACTION_FILTER_LABEL:
+                mFilterLabel = value;
+                break;
+        }
+        if(mFilterCheckbox || mFilterImage || mFilterColor != COLOR_NONE || mFilterLabel != -1
+                || !mLastTextSearch.isEmpty()) {
+            List<Note> filteredList = new ArrayList<>();
+            for (Note note : mValues) {
+                if (mFilterCheckbox && note.isHas_checkbox()
+                    || mFilterImage && note.isHas_image()
+                    || mFilterColor != COLOR_NONE && mFilterColor == note.getColor()
+                    || !mLastTextSearch.isEmpty() && mLastTextSearch.equals(note.getTitle())) {
+                    filteredList.add(note);
+                }
+            }
+            mValuesFilted = filteredList;
+        } else {
+            mValuesFilted = mValues;
+        }
+        notifyDataSetChanged();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
