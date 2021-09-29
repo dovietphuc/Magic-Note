@@ -40,6 +40,7 @@ import phucdv.android.magicnote.R;
 import phucdv.android.magicnote.data.BaseItem;
 import phucdv.android.magicnote.data.checkboxitem.CheckboxItem;
 import phucdv.android.magicnote.data.imageitem.ImageItem;
+import phucdv.android.magicnote.data.noteitem.Note;
 import phucdv.android.magicnote.data.textitem.TextItem;
 import phucdv.android.magicnote.noteinterface.OnKeyClick;
 import phucdv.android.magicnote.ui.editnote.EditNoteFragment;
@@ -281,6 +282,19 @@ public class EditNoteItemRecyclerViewAdapter extends RecyclerView.Adapter<Recycl
             count += mCheckboxtextCount.get(i);
         }
         return count;
+    }
+
+    public String getAllTextContent(){
+        String textContent = "";
+        for(int i = 0; i < mItemSortedList.size(); i++){
+            BaseItem item = mItemSortedList.get(i);
+            if(item instanceof TextItem){
+                textContent += ((TextItem)item).getContent() + "\n";
+            } else if(item instanceof CheckboxItem){
+                textContent += ((CheckboxItem)item).getContent() + "\n";
+            }
+        }
+        return textContent;
     }
 
     public int getFocusPosition(){

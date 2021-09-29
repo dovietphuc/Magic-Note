@@ -11,6 +11,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -35,21 +36,32 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import phucdv.android.magicnote.R;
+import phucdv.android.magicnote.adapter.ColorPickerAdapter;
 import phucdv.android.magicnote.adapter.NoteItemRecyclerViewAdapter;
 import phucdv.android.magicnote.data.noteitem.Note;
 import phucdv.android.magicnote.noteinterface.OnItemLongClickListener;
 import phucdv.android.magicnote.noteinterface.ShareComponents;
 import phucdv.android.magicnote.noteinterface.TouchHelper;
+import phucdv.android.magicnote.ui.colorpicker.ColorPickerDialog;
+import phucdv.android.magicnote.util.CheckableImageButton;
 import phucdv.android.magicnote.util.Constants;
 import phucdv.android.magicnote.util.KeyBoardController;
 
-public abstract class BaseListNoteFragment extends Fragment implements View.OnClickListener, TouchHelper, Toolbar.OnMenuItemClickListener, OnItemLongClickListener {
+public abstract class BaseListNoteFragment extends Fragment implements View.OnClickListener,
+        TouchHelper, Toolbar.OnMenuItemClickListener,
+        OnItemLongClickListener, CheckableImageButton.OnCheckableButtonListener {
 
     protected RecyclerView mRecyclerView;
     protected NoteItemRecyclerViewAdapter mAdapter;
     protected ShareComponents mShareComponents;
     protected View mQuickFilter;
     protected boolean mClosing = false;
+    private int mFilterColor = ColorPickerDialog.COLOR_NONE;
+    private CheckableImageButton mBtnFilterCheckbox;
+    private CheckableImageButton mBtnFilterImage;
+    private ImageButton mBtnFilterColor;
+    private ImageButton mBtnFilterLabel;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -64,14 +76,17 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
         mRecyclerView.setAdapter(mAdapter);
 
         mQuickFilter = view.findViewById(R.id.quick_filter);
-        ImageButton filterCheckbox = mQuickFilter.findViewById(R.id.filter_checkbox);
-        filterCheckbox.setOnClickListener(this);
-        ImageButton filterImage = mQuickFilter.findViewById(R.id.filter_image);
-        filterImage.setOnClickListener(this);
-        ImageButton filterColor = mQuickFilter.findViewById(R.id.filter_color);
-        filterColor.setOnClickListener(this);
-        ImageButton filterLabel = mQuickFilter.findViewById(R.id.filter_label);
-        filterLabel.setOnClickListener(this);
+        mBtnFilterCheckbox = mQuickFilter.findViewById(R.id.filter_checkbox);
+        mBtnFilterCheckbox.setOnCheckableButtonListener(this);
+
+        mBtnFilterImage = mQuickFilter.findViewById(R.id.filter_image);
+        mBtnFilterImage.setOnCheckableButtonListener(this);
+
+        mBtnFilterColor = mQuickFilter.findViewById(R.id.filter_color);
+        mBtnFilterColor.setOnClickListener(this);
+
+        mBtnFilterLabel = mQuickFilter.findViewById(R.id.filter_label);
+        mBtnFilterLabel.setOnClickListener(this);
 
         mShareComponents = (ShareComponents) getContext();
         setHasOptionsMenu(true);
@@ -103,27 +118,21 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
         search.setOnSearchClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mQuickFilter.setVisibility(View.VISIBLE);
-                mQuickFilter.animate()
+                mRecyclerView.animate()
                         .translationY(0);
             }
         });
         search.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
-                mClosing = true;
-                mQuickFilter.animate()
-                        .translationY(-mQuickFilter.getHeight())
-                        .setListener(new AnimatorListenerAdapter() {
-                            @Override
-                            public void onAnimationEnd(Animator animation) {
-                                super.onAnimationEnd(animation);
-                                if(mClosing) {
-                                    mQuickFilter.setVisibility(View.GONE);
-                                    mClosing = false;
-                                }
-                            }
-                        });
+                mRecyclerView.animate()
+                        .translationY(-mQuickFilter.getHeight());
+                mFilterColor = ColorPickerDialog.COLOR_NONE;
+                mBtnFilterCheckbox.setChecked(false);
+                mBtnFilterImage.setChecked(false);
+                mBtnFilterColor.setBackgroundColor(getResources().getColor(R.color.unchecked_button));
+                mFilterColor = ColorPickerDialog.COLOR_NONE;
+                mAdapter.clearFilter();
                 return false;
             }
         });
@@ -155,14 +164,26 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
                     mShareComponents.navigate(R.id.action_global_editNoteFragment, bundle);
                 }
                 break;
-            case R.id.filter_checkbox:
-                mAdapter.filter(mAdapter.ACTION_FILTER_CHECKBOX, 0, true);
-                break;
-            case R.id.filter_image:
-                mAdapter.filter(mAdapter.ACTION_FILTER_IMAGE, 0, true);
-                break;
             case R.id.filter_color:
-                mAdapter.filter(mAdapter.ACTION_FILTER_COLOR, Color.RED, false);
+                ColorPickerDialog colorPickerDialog = new ColorPickerDialog();
+                colorPickerDialog.setShouldShowNone(true);
+                colorPickerDialog.setExitsColor(mFilterColor);
+                colorPickerDialog.setOnColorPickerListener(new ColorPickerAdapter.OnColorPickerListener() {
+                    @Override
+                    public void onColorPicked(int color) {
+                        mFilterColor = color;
+                        mAdapter.filter(mAdapter.ACTION_FILTER_COLOR, "", color, false);
+                        v.setBackgroundColor(
+                                mFilterColor == ColorPickerDialog.COLOR_NONE ?
+                                        getResources().getColor(R.color.unchecked_button) : color);
+                    }
+
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+
+                    }
+                });
+                colorPickerDialog.showDialog((AppCompatActivity) getActivity());
                 break;
             case R.id.filter_label:
                 break;
@@ -205,5 +226,17 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
                 return true;
         }
         return false;
+    }
+
+    @Override
+    public void onCheckChange(View view, boolean isCheck) {
+        switch (view.getId()) {
+            case R.id.filter_checkbox:
+                mAdapter.filter(mAdapter.ACTION_FILTER_CHECKBOX, "", 0, isCheck);
+                break;
+            case R.id.filter_image:
+                mAdapter.filter(mAdapter.ACTION_FILTER_IMAGE, "", 0, isCheck);
+                break;
+        }
     }
 }

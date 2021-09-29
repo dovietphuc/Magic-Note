@@ -6,18 +6,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import phucdv.android.magicnote.R;
+import phucdv.android.magicnote.ui.colorpicker.ColorPickerDialog;
 
-public class ColorPickerAdapter extends RecyclerView.Adapter<ColorPickerAdapter.ColorPickerViewHolder> {
+public class ColorPickerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    private int VIEW_TYPE_COLOR = 1;
+    private int VIEW_TYPE_NONE = 0;
 
     private int[] mColors;
     private OnColorPickerListener mOnColorPickerListener;
     private int mExitsColor;
-    private ColorPickerViewHolder mExitsItem;
+    private RecyclerView.ViewHolder mExitsItem;
 
     public ColorPickerAdapter(int[] colors){
         mColors = colors;
@@ -31,16 +36,28 @@ public class ColorPickerAdapter extends RecyclerView.Adapter<ColorPickerAdapter.
         mOnColorPickerListener = onColorPickerListener;
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return mColors[position] == ColorPickerDialog.COLOR_NONE ? VIEW_TYPE_NONE : VIEW_TYPE_COLOR;
+    }
+
     @NonNull
     @Override
-    public ColorPickerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ColorPickerViewHolder(LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.color_picker_item, parent, false));
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return (viewType == VIEW_TYPE_COLOR) ? new ColorPickerViewHolder(LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.color_picker_item, parent, false))
+                : new ColorPickerNoneItemViewHolder(LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.color_picker_none_item, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ColorPickerViewHolder holder, int position) {
-        holder.bind(mColors[position]);
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if(holder instanceof ColorPickerViewHolder){
+            ((ColorPickerViewHolder)holder).bind(mColors[position]);
+        } else if(holder instanceof ColorPickerNoneItemViewHolder){
+            ((ColorPickerNoneItemViewHolder)holder).bind(mColors[position]);
+
+        }
     }
 
     @Override
@@ -61,13 +78,18 @@ public class ColorPickerAdapter extends RecyclerView.Adapter<ColorPickerAdapter.
             mColorItem.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mOnColorPickerListener != null) {
+                    if (mExitsItem.getLayoutPosition() != getLayoutPosition()) {
                         mBackground.setBackgroundColor(Color.BLUE);
-                        if (mExitsItem != null){
-                            mExitsItem.mBackground.setBackgroundColor(Color.WHITE);
+                        if (mExitsItem != null && mExitsItem instanceof ColorPickerNoneItemViewHolder) {
+                            ((ColorPickerNoneItemViewHolder) mExitsItem).mBackground.setBackgroundColor(Color.WHITE);
+                        } else if (mExitsItem != null && mExitsItem instanceof ColorPickerViewHolder) {
+                            ((ColorPickerViewHolder) mExitsItem).mBackground.setBackgroundColor(Color.WHITE);
                         }
                         mExitsItem = ColorPickerViewHolder.this;
-                        mOnColorPickerListener.onColorPicked(mColors[getLayoutPosition()]);
+                        if (mOnColorPickerListener != null) {
+
+                            mOnColorPickerListener.onColorPicked(mColors[getLayoutPosition()]);
+                        }
                     }
                 }
             });
@@ -75,6 +97,45 @@ public class ColorPickerAdapter extends RecyclerView.Adapter<ColorPickerAdapter.
 
         public void bind(int color){
             mColorItem.setBackgroundColor(color);
+            if(mExitsColor == color){
+                mBackground.setBackgroundColor(Color.BLUE);
+                mExitsItem = this;
+            } else {
+                mBackground.setBackgroundColor(Color.WHITE);
+            }
+        }
+    }
+
+    public class ColorPickerNoneItemViewHolder extends RecyclerView.ViewHolder{
+        private View mView;
+        private ImageView mColorItem;
+        private FrameLayout mBackground;
+
+        public ColorPickerNoneItemViewHolder(@NonNull View itemView) {
+            super(itemView);
+            mView = itemView;
+            mBackground = itemView.findViewById(R.id.background);
+            mColorItem = itemView.findViewById(R.id.color_item);
+            mColorItem.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mExitsItem.getLayoutPosition() != getLayoutPosition()) {
+                        mBackground.setBackgroundColor(Color.BLUE);
+                        if (mExitsItem != null && mExitsItem instanceof ColorPickerNoneItemViewHolder) {
+                            ((ColorPickerNoneItemViewHolder) mExitsItem).mBackground.setBackgroundColor(Color.WHITE);
+                        } else if (mExitsItem != null && mExitsItem instanceof ColorPickerViewHolder) {
+                            ((ColorPickerViewHolder) mExitsItem).mBackground.setBackgroundColor(Color.WHITE);
+                        }
+                        mExitsItem = ColorPickerNoneItemViewHolder.this;
+                        if (mOnColorPickerListener != null) {
+                            mOnColorPickerListener.onColorPicked(mColors[getLayoutPosition()]);
+                        }
+                    }
+                }
+            });
+        }
+
+        public void bind(int color){
             if(mExitsColor == color){
                 mBackground.setBackgroundColor(Color.BLUE);
                 mExitsItem = this;

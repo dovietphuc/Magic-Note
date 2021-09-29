@@ -18,12 +18,14 @@ import phucdv.android.magicnote.R;
 import phucdv.android.magicnote.data.noteitem.Note;
 import phucdv.android.magicnote.noteinterface.OnItemLongClickListener;
 import phucdv.android.magicnote.noteinterface.ShareComponents;
+import phucdv.android.magicnote.ui.colorpicker.ColorPickerDialog;
 import phucdv.android.magicnote.util.Constants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link Note}.
@@ -36,7 +38,8 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     public final int ACTION_FILTER_IMAGE = 1;
     public final int ACTION_FILTER_COLOR = 2;
     public final int ACTION_FILTER_LABEL = 3;
-    public final int COLOR_NONE = -1;
+    public final int ACTION_FILTER_TEXT = 4;
+    public final int COLOR_NONE = ColorPickerDialog.COLOR_NONE;
 
     private final int TYPE_DEFAULT = 0;
     private final int TYPE_BLANK = 1;
@@ -58,7 +61,8 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     private boolean mFilterImage = false;
     private int mFilterColor = COLOR_NONE;
     private int mFilterLabel = -1;
-    private String mLastTextSearch = "";
+    private String mFilterText = "";
+
 
     public NoteItemRecyclerViewAdapter() {
         mValues = new ArrayList<>();
@@ -145,8 +149,13 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
             String time = calendar.get(Calendar.DAY_OF_MONTH) + "/" + (calendar.get(Calendar.MONTH) + 1)
                     + "/" + calendar.get(Calendar.YEAR) + " " + calendar.get(Calendar.HOUR_OF_DAY)
                     + ":" + calendar.get(Calendar.MINUTE);
+            String content = "";
+            int indexOfEndLine = note.getFull_text().indexOf("\n");
+            if(indexOfEndLine != -1){
+                content = note.getFull_text().substring(indexOfEndLine + 1);
+            }
             ((ViewHolder)holder).bind(note.getTitle(), time, note.getColor(), note.isHas_checkbox(),
-                    note.isHas_image(), note.isIs_pinned());
+                    note.isHas_image(), note.isIs_pinned(), content);
         }
     }
 
@@ -160,22 +169,22 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         return new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence charSequence) {
-                String charString = charSequence.toString();
-                mLastTextSearch = charString;
-                if (charString.isEmpty()) {
-                    mValuesFilted = mValues;
-                } else {
+                mFilterText = charSequence.toString().toLowerCase();
+
+                if(mFilterCheckbox || mFilterImage || mFilterColor != COLOR_NONE || mFilterLabel != -1 || !mFilterText.isEmpty()) {
                     List<Note> filteredList = new ArrayList<>();
-                    for (Note note : mValues) {
-                        if (note.getTitle().toLowerCase().contains(charString.toLowerCase())
-                                || note.getTitle().contains(charSequence)) {
+                    for (Note note : mValuesFilted) {
+                        if (mFilterCheckbox && note.isHas_checkbox()
+                                || mFilterImage && note.isHas_image()
+                                || mFilterColor != COLOR_NONE && mFilterColor == note.getColor()
+                                || !mFilterText.isEmpty() && note.getFull_text().toLowerCase().contains(mFilterText)) {
                             filteredList.add(note);
                         }
                     }
-
                     mValuesFilted = filteredList;
+                } else {
+                    mValuesFilted = mValues;
                 }
-
                 FilterResults filterResults = new FilterResults();
                 filterResults.values = mValuesFilted;
                 return filterResults;
@@ -189,7 +198,7 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         };
     }
 
-    public void filter(int action, int value, boolean isOn){
+    public void filter(int action, String text, int value, boolean isOn){
         switch (action){
             case ACTION_FILTER_CHECKBOX:
                 mFilterCheckbox = isOn;
@@ -203,15 +212,17 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
             case ACTION_FILTER_LABEL:
                 mFilterLabel = value;
                 break;
+            case ACTION_FILTER_TEXT:
+                mFilterText = text;
+                break;
         }
-        if(mFilterCheckbox || mFilterImage || mFilterColor != COLOR_NONE || mFilterLabel != -1
-                || !mLastTextSearch.isEmpty()) {
+        if(mFilterCheckbox || mFilterImage || mFilterColor != COLOR_NONE || mFilterLabel != -1 || !mFilterText.isEmpty()) {
             List<Note> filteredList = new ArrayList<>();
-            for (Note note : mValues) {
+            for (Note note : mValuesFilted) {
                 if (mFilterCheckbox && note.isHas_checkbox()
                     || mFilterImage && note.isHas_image()
                     || mFilterColor != COLOR_NONE && mFilterColor == note.getColor()
-                    || !mLastTextSearch.isEmpty() && mLastTextSearch.equals(note.getTitle())) {
+                    || !mFilterText.isEmpty() && note.getFull_text().toLowerCase().contains(mFilterText)) {
                     filteredList.add(note);
                 }
             }
@@ -219,6 +230,15 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         } else {
             mValuesFilted = mValues;
         }
+        notifyDataSetChanged();
+    }
+
+    public void clearFilter(){
+        mFilterColor = COLOR_NONE;
+        mFilterLabel = -1;
+        mFilterImage = false;
+        mFilterCheckbox = false;
+        mValuesFilted = mValues;
         notifyDataSetChanged();
     }
 
@@ -230,6 +250,7 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         public final ImageView mHasImage;
         public final ImageView mHasPinned;
         public final CheckBox mCheckBox;
+        public final TextView mContent;
 
         public ViewHolder(View view) {
             super(view);
@@ -275,13 +296,15 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
             mHasCheckbox = view.findViewById(R.id.hasCheckbox);
             mHasImage = view.findViewById(R.id.hasImage);
             mHasPinned = view.findViewById(R.id.hasPin);
+            mContent = view.findViewById(R.id.content);
         }
 
         public long getNoteId(int position){
             return mValuesFilted.get(position).getId();
         }
 
-        public void bind(String title, String time, int color, boolean hasCheckbox, boolean hasImage, boolean hasPin){
+        public void bind(String title, String time, int color, boolean hasCheckbox
+                , boolean hasImage, boolean hasPin, String content){
             if(title.isEmpty()){
                 title = mView.getContext().getString(R.string.none_text);
             }
@@ -293,6 +316,8 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
             mHasPinned.setVisibility(hasPin ? View.VISIBLE : View.GONE);
             mCheckBox.setVisibility(mMode == MODE_NORMAL ? View.GONE : View.VISIBLE);
             mCheckBox.setChecked(mSelectedPos[getLayoutPosition()]);
+            mContent.setText("");
+            mContent.setText(content);
         }
     }
 }

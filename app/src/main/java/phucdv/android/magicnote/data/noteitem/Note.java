@@ -26,10 +26,11 @@ public class Note {
     private int color;
     private boolean has_checkbox;
     private boolean has_image;
+    private String full_text;
 
     public Note(String title, Calendar time_create, Calendar time_last_update, boolean is_archive,
                 boolean is_deleted, long order_in_parent, boolean is_pinned, int color,
-                boolean has_checkbox, boolean has_image) {
+                boolean has_checkbox, boolean has_image, String full_text) {
         this.title = title;
         this.time_create = time_create;
         this.time_last_update = time_last_update;
@@ -40,6 +41,7 @@ public class Note {
         this.color = color;
         this.has_checkbox = has_checkbox;
         this.has_image = has_image;
+        this.full_text = full_text;
     }
 
     public long getId() {
@@ -128,5 +130,13 @@ public class Note {
 
     public void setHas_image(boolean has_image) {
         this.has_image = has_image;
+    }
+
+    public String getFull_text(){
+        return full_text;
+    }
+
+    public void setFull_text(String full_text){
+        this.full_text = full_text;
     }
 }

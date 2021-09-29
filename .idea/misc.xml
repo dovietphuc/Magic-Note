@@ -33,12 +33,13 @@
         <entry key="..\:/Android/MagicNote/app/src/main/res/layout/checkbox_item.xml" value="0.36666666666666664" />
         <entry key="..\:/Android/MagicNote/app/src/main/res/layout/color_picker_item.xml" value="0.67" />
         <entry key="..\:/Android/MagicNote/app/src/main/res/layout/color_picker_layout.xml" value="0.5" />
+        <entry key="..\:/Android/MagicNote/app/src/main/res/layout/color_picker_none_item.xml" value="0.36666666666666664" />
         <entry key="..\:/Android/MagicNote/app/src/main/res/layout/content_main.xml" value="0.36666666666666664" />
         <entry key="..\:/Android/MagicNote/app/src/main/res/layout/edit_note_fragment.xml" value="0.36666666666666664" />
         <entry key="..\:/Android/MagicNote/app/src/main/res/layout/fragment_base_list_note_list.xml" value="0.36666666666666664" />
         <entry key="..\:/Android/MagicNote/app/src/main/res/layout/fragment_date_time_picker_dialog.xml" value="0.67" />
         <entry key="..\:/Android/MagicNote/app/src/main/res/layout/image_item.xml" value="0.36666666666666664" />
-        <entry key="..\:/Android/MagicNote/app/src/main/res/layout/note_item.xml" value="0.36666666666666664" />
+        <entry key="..\:/Android/MagicNote/app/src/main/res/layout/note_item.xml" value="0.75" />
         <entry key="..\:/Android/MagicNote/app/src/main/res/layout/quick_filter.xml" value="0.5" />
         <entry key="..\:/Android/MagicNote/app/src/main/res/layout/text_item.xml" value="0.36666666666666664" />
         <entry key="..\:/Android/MagicNote/app/src/main/res/menu/archive_menu.xml" value="0.18958333333333333" />

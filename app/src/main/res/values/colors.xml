@@ -25,4 +25,19 @@
         <item>#a29bfe</item>
         <item>#dfe6e9</item>
     </array>
+
+    <array name="background_color_with_none">
+        <item>#ffeaa7</item>
+        <item>#d63031</item>
+        <item>#fd79a8</item>
+        <item>#55efc4</item>
+        <item>#81ecec</item>
+        <item>#74b9ff</item>
+        <item>#a29bfe</item>
+        <item>#dfe6e9</item>
+        <item>#00000000</item>
+    </array>
+
+    <color name="checked_button">#FFFF5722</color>
+    <color name="unchecked_button">#9E9E9E</color>
 </resources>

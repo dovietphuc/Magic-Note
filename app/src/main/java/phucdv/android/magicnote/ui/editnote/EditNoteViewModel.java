@@ -192,7 +192,7 @@ public class EditNoteViewModel extends AndroidViewModel {
             // Bkav PhucDVb: create base note item to insert/update
             Note toInsertNote = (note == null) ? new Note("", Calendar.getInstance(), Calendar.getInstance(),
                     false, false, 0, false,
-                    0, false, false) : note;
+                    0, false, false, "") : note;
             toInsertNote.setColor(mCurrentColor.getValue());
             toInsertNote.setTime_last_update(Calendar.getInstance());
             toInsertNote.setIs_pinned(mIsPinned.getValue());
@@ -204,6 +204,8 @@ public class EditNoteViewModel extends AndroidViewModel {
             if(adapter.getAllTextCount() == 0){
                 toInsertNote.setTitle("");
             } else {
+                toInsertNote.setFull_text(adapter.getAllTextContent());
+
                 for (int i = 0; i < listBase.size(); i++) {
                     BaseItem item = listBase.get(i);
                     if (item instanceof TextItem) {

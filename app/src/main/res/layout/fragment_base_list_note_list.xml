@@ -8,14 +8,15 @@
     android:orientation="vertical">
 
     <include
-        layout="@layout/quick_filter"
-        android:visibility="gone" />
+        layout="@layout/quick_filter"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list"
         android:name="phucdv.android.magicnote.ui.BaseListNoteFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#FFFFFF"
+        android:translationY="-50dp"
         tools:context=".ui.BaseListNoteFragment"
         tools:listitem="@layout/note_item" />
 
