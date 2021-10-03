@@ -59,4 +59,9 @@
     <string name="move_to_trash">Moved to trash</string>
     <string name="clear_trash">Clear trash</string>
     <string name="search">Search</string>
+    <string name="new_note">New note</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="configure">Configure</string>
+    <string name="add_widget">Add widget</string>
+    <string name="app_widget_description">This is an app widget description</string>
 </resources>

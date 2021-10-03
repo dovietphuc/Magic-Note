@@ -27,4 +27,14 @@
     <style name="cursorColor" parent="Widget.AppCompat.AutoCompleteTextView">
         <item name="android:textCursorDrawable">@drawable/cursor</item>
     </style>
+    <style name="Theme.MagicNote.AppWidgetContainerParent"
+        parent="@android:style/Theme.DeviceDefault">
+        <item name="appWidgetRadius">8dp</item>
+        <item name="appWidgetPadding">4dp</item>
+        <item name="appWidgetInnerRadius">4dp</item>
+    </style>
+
+    <style name="Theme.MagicNote.AppWidgetContainer"
+        parent="Theme.MagicNote.AppWidgetContainerParent" />
+
 </resources>

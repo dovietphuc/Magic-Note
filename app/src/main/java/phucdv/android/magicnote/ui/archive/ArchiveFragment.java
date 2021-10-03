@@ -244,6 +244,7 @@ public class ArchiveFragment extends BaseListNoteFragment {
         switch (which){
             case 0:
                 ColorPickerDialog colorPickerDialog = new ColorPickerDialog();
+                colorPickerDialog.setExitsColor(note.getColor());
                 colorPickerDialog.setOnColorPickerListener(new ColorPickerAdapter.OnColorPickerListener() {
                     @Override
                     public void onColorPicked(int color) {

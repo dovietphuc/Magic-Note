@@ -1,9 +1,14 @@
 package phucdv.android.magicnote;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.drawable.Animatable2;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.widget.TextView;
@@ -24,8 +29,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import phucdv.android.magicnote.noteinterface.ShareComponents;
+import phucdv.android.magicnote.util.Constants;
 
 public class MagicNoteActivity extends AppCompatActivity implements ShareComponents {
+
+    public static final String ACTION_NEW_NOTE = "phucdv.action.ACTION_NEW_NOTE";
 
     private AppBarConfiguration mAppBarConfiguration;
     private NavController mNavController;
@@ -66,6 +74,24 @@ public class MagicNoteActivity extends AppCompatActivity implements ShareCompone
         });
         mFab = findViewById(R.id.fab);
         mAnimatedVectorDrawable = (AnimatedVectorDrawable) mFab.getDrawable();
+
+        Intent intent = getIntent();
+        if(intent.getAction().equals(ACTION_NEW_NOTE)){
+            Bundle bundle = new Bundle();
+            bundle.putLong(Constants.ARG_PARENT_ID,
+                    intent.getLongExtra(Constants.ARG_PARENT_ID, Constants.UNKNOW_PARENT_ID));
+            navigate(R.id.action_global_editNoteFragment, bundle);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
     }
 
     @Override

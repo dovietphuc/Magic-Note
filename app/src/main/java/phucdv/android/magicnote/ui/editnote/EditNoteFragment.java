@@ -103,6 +103,9 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener, 
             mViewModel.getNote().observe(getViewLifecycleOwner(), new Observer<Note>() {
                 @Override
                 public void onChanged(Note note) {
+                    if(note == null) {
+                        return;
+                    }
                     mNote = note;
                     mViewModel.setCurrentColor(note.getColor());
 

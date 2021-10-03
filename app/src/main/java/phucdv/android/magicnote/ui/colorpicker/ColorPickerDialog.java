@@ -29,7 +29,7 @@ public class ColorPickerDialog extends DialogFragment {
     private RecyclerView mRecyclerView;
     private ColorPickerAdapter mPickerAdapter;
     private ColorPickerAdapter.OnColorPickerListener mOnColorPickerListener;
-    private int mExitsColor;
+    private int mExitsColor = COLOR_NONE;
     private boolean mShouldShowNone = false;
 
     @Nullable

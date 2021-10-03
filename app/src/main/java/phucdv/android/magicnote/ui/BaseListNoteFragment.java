@@ -49,7 +49,8 @@ import phucdv.android.magicnote.util.KeyBoardController;
 
 public abstract class BaseListNoteFragment extends Fragment implements View.OnClickListener,
         TouchHelper, Toolbar.OnMenuItemClickListener,
-        OnItemLongClickListener, CheckableImageButton.OnCheckableButtonListener {
+        OnItemLongClickListener, CheckableImageButton.OnCheckableButtonListener,
+        NoteItemRecyclerViewAdapter.NoteItemClickListener {
 
     protected RecyclerView mRecyclerView;
     protected NoteItemRecyclerViewAdapter mAdapter;
@@ -73,9 +74,11 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
         mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
         mAdapter = new NoteItemRecyclerViewAdapter();
         mAdapter.setOnItemLongClickListener(this);
+        mAdapter.setNoteItemClickListener(this);
         mRecyclerView.setAdapter(mAdapter);
 
         mQuickFilter = view.findViewById(R.id.quick_filter);
+
         mBtnFilterCheckbox = mQuickFilter.findViewById(R.id.filter_checkbox);
         mBtnFilterCheckbox.setOnCheckableButtonListener(this);
 
@@ -118,15 +121,27 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
         search.setOnSearchClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mRecyclerView.animate()
+                mClosing = false;
+                mQuickFilter.setVisibility(View.VISIBLE);
+                mQuickFilter.animate()
                         .translationY(0);
             }
         });
         search.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
-                mRecyclerView.animate()
-                        .translationY(-mQuickFilter.getHeight());
+                mClosing = true;
+                mQuickFilter.animate()
+                        .translationY(-mQuickFilter.getHeight())
+                        .setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                if (mClosing) {
+                                    mQuickFilter.setVisibility(View.GONE);
+                                    mClosing = false;
+                                }
+                            }
+                        });
                 mFilterColor = ColorPickerDialog.COLOR_NONE;
                 mBtnFilterCheckbox.setChecked(false);
                 mBtnFilterImage.setChecked(false);
@@ -238,5 +253,12 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
                 mAdapter.filter(mAdapter.ACTION_FILTER_IMAGE, "", 0, isCheck);
                 break;
         }
+    }
+
+    @Override
+    public void onNoteItemClick(NoteItemRecyclerViewAdapter.ViewHolder viewHolder) {
+        Bundle bundle = new Bundle();
+        bundle.putLong(Constants.ARG_PARENT_ID, viewHolder.mNote.getId());
+        mShareComponents.navigate(R.id.action_global_editNoteFragment, bundle);
     }
 }

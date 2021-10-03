@@ -145,17 +145,8 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         if(holder instanceof ViewHolder){
             Note note = mValuesFilted.get(position);
-            Calendar calendar = note.getTime_last_update();
-            String time = calendar.get(Calendar.DAY_OF_MONTH) + "/" + (calendar.get(Calendar.MONTH) + 1)
-                    + "/" + calendar.get(Calendar.YEAR) + " " + calendar.get(Calendar.HOUR_OF_DAY)
-                    + ":" + calendar.get(Calendar.MINUTE);
-            String content = "";
-            int indexOfEndLine = note.getFull_text().indexOf("\n");
-            if(indexOfEndLine != -1){
-                content = note.getFull_text().substring(indexOfEndLine + 1);
-            }
-            ((ViewHolder)holder).bind(note.getTitle(), time, note.getColor(), note.isHas_checkbox(),
-                    note.isHas_image(), note.isIs_pinned(), content);
+
+            ((ViewHolder)holder).bind(note);
         }
     }
 
@@ -170,21 +161,7 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
             @Override
             protected FilterResults performFiltering(CharSequence charSequence) {
                 mFilterText = charSequence.toString().toLowerCase();
-
-                if(mFilterCheckbox || mFilterImage || mFilterColor != COLOR_NONE || mFilterLabel != -1 || !mFilterText.isEmpty()) {
-                    List<Note> filteredList = new ArrayList<>();
-                    for (Note note : mValuesFilted) {
-                        if (mFilterCheckbox && note.isHas_checkbox()
-                                || mFilterImage && note.isHas_image()
-                                || mFilterColor != COLOR_NONE && mFilterColor == note.getColor()
-                                || !mFilterText.isEmpty() && note.getFull_text().toLowerCase().contains(mFilterText)) {
-                            filteredList.add(note);
-                        }
-                    }
-                    mValuesFilted = filteredList;
-                } else {
-                    mValuesFilted = mValues;
-                }
+                NoteItemRecyclerViewAdapter.this.filter();
                 FilterResults filterResults = new FilterResults();
                 filterResults.values = mValuesFilted;
                 return filterResults;
@@ -216,13 +193,103 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
                 mFilterText = text;
                 break;
         }
+        filter();
+        notifyDataSetChanged();
+    }
+
+    private List<Note> filter(){
         if(mFilterCheckbox || mFilterImage || mFilterColor != COLOR_NONE || mFilterLabel != -1 || !mFilterText.isEmpty()) {
             List<Note> filteredList = new ArrayList<>();
-            for (Note note : mValuesFilted) {
-                if (mFilterCheckbox && note.isHas_checkbox()
-                    || mFilterImage && note.isHas_image()
-                    || mFilterColor != COLOR_NONE && mFilterColor == note.getColor()
-                    || !mFilterText.isEmpty() && note.getFull_text().toLowerCase().contains(mFilterText)) {
+            for (Note note : mValues) {
+                if (// 0001
+                        (mFilterCheckbox && note.isHas_checkbox()
+                                && !mFilterImage
+                                && mFilterColor == COLOR_NONE
+                                && mFilterText.isEmpty())
+                                ||
+                                // 0010
+                                (!mFilterCheckbox
+                                        && mFilterImage && note.isHas_image()
+                                        && mFilterColor == COLOR_NONE
+                                        && mFilterText.isEmpty())
+                                ||
+                                // 0011
+                                (mFilterCheckbox && note.isHas_checkbox()
+                                        && mFilterImage && note.isHas_image()
+                                        && mFilterColor == COLOR_NONE
+                                        && mFilterText.isEmpty())
+                                ||
+                                // 0100
+                                (!mFilterCheckbox
+                                        && !mFilterImage
+                                        && mFilterColor != COLOR_NONE && mFilterColor == note.getColor()
+                                        && mFilterText.isEmpty())
+                                ||
+                                // 0101
+                                (mFilterCheckbox && note.isHas_checkbox()
+                                        && !mFilterImage
+                                        && mFilterColor != COLOR_NONE && mFilterColor == note.getColor()
+                                        && mFilterText.isEmpty())
+                                ||
+                                // 0110
+                                (!mFilterCheckbox
+                                        && mFilterImage && note.isHas_image()
+                                        && mFilterColor != COLOR_NONE && mFilterColor == note.getColor()
+                                        && mFilterText.isEmpty())
+                                ||
+                                // 0111
+                                (mFilterCheckbox && note.isHas_checkbox()
+                                        && mFilterImage && note.isHas_image()
+                                        && mFilterColor != COLOR_NONE && mFilterColor == note.getColor()
+                                        && mFilterText.isEmpty())
+                                ||
+                                // 1000
+                                (!mFilterCheckbox
+                                        && !mFilterImage
+                                        && mFilterColor == COLOR_NONE
+                                        && !mFilterText.isEmpty() && note.getFull_text().toLowerCase().contains(mFilterText))
+                                ||
+                                // 1001
+                                (mFilterCheckbox && note.isHas_checkbox()
+                                        && !mFilterImage
+                                        && mFilterColor == COLOR_NONE
+                                        && !mFilterText.isEmpty() && note.getFull_text().toLowerCase().contains(mFilterText))
+                                ||
+                                // 1010
+                                (!mFilterCheckbox
+                                        && mFilterImage && note.isHas_image()
+                                        && mFilterColor == COLOR_NONE
+                                        && !mFilterText.isEmpty() && note.getFull_text().toLowerCase().contains(mFilterText))
+                                ||
+                                // 1011
+                                (mFilterCheckbox && note.isHas_checkbox()
+                                        && mFilterImage && note.isHas_image()
+                                        && mFilterColor == COLOR_NONE
+                                        && !mFilterText.isEmpty() && note.getFull_text().toLowerCase().contains(mFilterText))
+                                ||
+                                // 1100
+                                (!mFilterCheckbox
+                                        && !mFilterImage
+                                        && mFilterColor != COLOR_NONE && mFilterColor == note.getColor()
+                                        && !mFilterText.isEmpty() && note.getFull_text().toLowerCase().contains(mFilterText))
+                                ||
+                                // 1101
+                                (mFilterCheckbox && note.isHas_checkbox()
+                                        && !mFilterImage
+                                        && mFilterColor != COLOR_NONE && mFilterColor == note.getColor()
+                                        && !mFilterText.isEmpty() && note.getFull_text().toLowerCase().contains(mFilterText))
+                                ||
+                                // 1110
+                                (!mFilterCheckbox
+                                        && mFilterImage && note.isHas_image()
+                                        && mFilterColor != COLOR_NONE && mFilterColor == note.getColor()
+                                        && !mFilterText.isEmpty() && note.getFull_text().toLowerCase().contains(mFilterText))
+                                ||
+                                // 1111
+                                (mFilterCheckbox && note.isHas_checkbox()
+                                        && mFilterImage && note.isHas_image()
+                                        && mFilterColor != COLOR_NONE && mFilterColor == note.getColor()
+                                        && !mFilterText.isEmpty() && note.getFull_text().toLowerCase().contains(mFilterText))) {
                     filteredList.add(note);
                 }
             }
@@ -230,7 +297,7 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         } else {
             mValuesFilted = mValues;
         }
-        notifyDataSetChanged();
+        return mValuesFilted;
     }
 
     public void clearFilter(){
@@ -243,12 +310,14 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
+        public Note mNote;
         public final View mView;
         public final TextView mTitleView;
         public final TextView mTime;
         public final ImageView mHasCheckbox;
         public final ImageView mHasImage;
         public final ImageView mHasPinned;
+        public final ImageView mHasReminder;
         public final CheckBox mCheckBox;
         public final TextView mContent;
 
@@ -267,10 +336,8 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
                 @Override
                 public void onClick(View v) {
                     if(mMode == MODE_NORMAL) {
-                        if (view.getContext() instanceof ShareComponents) {
-                            Bundle bundle = new Bundle();
-                            bundle.putLong(Constants.ARG_PARENT_ID, mValuesFilted.get(getLayoutPosition()).getId());
-                            ((ShareComponents) view.getContext()).navigate(R.id.action_global_editNoteFragment, bundle);
+                        if (mNoteItemClickListener != null) {
+                            mNoteItemClickListener.onNoteItemClick(ViewHolder.this);
                         }
                     } else {
                         mCheckBox.setChecked(!mCheckBox.isChecked());
@@ -296,28 +363,50 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
             mHasCheckbox = view.findViewById(R.id.hasCheckbox);
             mHasImage = view.findViewById(R.id.hasImage);
             mHasPinned = view.findViewById(R.id.hasPin);
+            mHasReminder = view.findViewById(R.id.hasReminder);
             mContent = view.findViewById(R.id.content);
+            mNote = null;
         }
 
         public long getNoteId(int position){
             return mValuesFilted.get(position).getId();
         }
 
-        public void bind(String title, String time, int color, boolean hasCheckbox
-                , boolean hasImage, boolean hasPin, String content){
-            if(title.isEmpty()){
-                title = mView.getContext().getString(R.string.none_text);
+        public void bind(Note note){
+            mNote = note;
+            if(note.getTitle().isEmpty()){
+                note.setTitle(mView.getContext().getString(R.string.none_text));
             }
-            mTitleView.setText(title);
+            mTitleView.setText(note.getTitle());
+            Calendar calendar = note.getTime_last_update();
+            String time = calendar.get(Calendar.DAY_OF_MONTH) + "/" + (calendar.get(Calendar.MONTH) + 1)
+                    + "/" + calendar.get(Calendar.YEAR) + " " + calendar.get(Calendar.HOUR_OF_DAY)
+                    + ":" + calendar.get(Calendar.MINUTE);
+            String content = "";
+            int indexOfEndLine = note.getFull_text().indexOf("\n");
+            if(indexOfEndLine != -1){
+                content = note.getFull_text().substring(indexOfEndLine + 1);
+            }
             mTime.setText(mView.getContext().getString(R.string.last_modify, time));
-            mView.setBackgroundTintList(ColorStateList.valueOf(color));
-            mHasCheckbox.setVisibility(hasCheckbox ? View.VISIBLE : View.GONE);
-            mHasImage.setVisibility(hasImage ? View.VISIBLE : View.GONE);
-            mHasPinned.setVisibility(hasPin ? View.VISIBLE : View.GONE);
+            mView.setBackgroundTintList(ColorStateList.valueOf(note.getColor()));
+            mHasCheckbox.setVisibility(note.isHas_checkbox() ? View.VISIBLE : View.GONE);
+            mHasImage.setVisibility(note.isHas_image() ? View.VISIBLE : View.GONE);
+            mHasPinned.setVisibility(note.isIs_pinned() ? View.VISIBLE : View.GONE);
+            mHasReminder.setVisibility(false ? View.VISIBLE : View.GONE);
             mCheckBox.setVisibility(mMode == MODE_NORMAL ? View.GONE : View.VISIBLE);
             mCheckBox.setChecked(mSelectedPos[getLayoutPosition()]);
             mContent.setText("");
             mContent.setText(content);
         }
+    }
+
+    private NoteItemClickListener mNoteItemClickListener;
+
+    public void setNoteItemClickListener(NoteItemClickListener listener){
+        mNoteItemClickListener = listener;
+    }
+
+    public interface NoteItemClickListener{
+        public void onNoteItemClick(ViewHolder viewHolder);
     }
 }

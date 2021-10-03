@@ -49,6 +49,13 @@
             android:layout_gravity="end">
 
             <ImageView
+                android:id="@+id/hasReminder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/ic_baseline_notifications_active_black_24" />
+
+            <ImageView
                 android:id="@+id/hasCheckbox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

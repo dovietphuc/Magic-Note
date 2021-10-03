@@ -44,6 +44,20 @@ public class Note {
         this.full_text = full_text;
     }
 
+    public Note() {
+        this.title = "";
+        this.time_create = Calendar.getInstance();
+        this.time_last_update = Calendar.getInstance();
+        this.is_archive = false;
+        this.is_deleted = false;
+        this.order_in_parent = 0;
+        this.is_pinned = false;
+        this.color = 0;
+        this.has_checkbox = false;
+        this.has_image = false;
+        this.full_text = "";
+    }
+
     public long getId() {
         return id;
     }

@@ -19,6 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.Stack;
+import java.util.regex.Pattern;
 
 import phucdv.android.magicnote.noteinterface.OnKeyClick;
 
@@ -69,10 +70,15 @@ public class UndoRedoEditText extends androidx.appcompat.widget.AppCompatEditTex
             @Override
             public void afterTextChanged(Editable s) {
                 Linkify.addLinks(s, Linkify.ALL);
+                Pattern tagMatcher = Pattern.compile(("#([ء-يA-Za-z0-9_-]+)"));
+                Linkify.addLinks(s, tagMatcher, null);
             }
         });
         setLinksClickable(true);
         setAutoLinkMask(Linkify.ALL);
+        Linkify.addLinks(this, Linkify.ALL);
+        Pattern tagMatcher = Pattern.compile(("#([ء-يA-Za-z0-9_-]+)"));
+        Linkify.addLinks(this, tagMatcher, null);
     }
 
     public String undo(){
