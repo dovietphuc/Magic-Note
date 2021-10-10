@@ -25,8 +25,10 @@ import java.util.Objects;
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 import phucdv.android.magicnote.R;
 import phucdv.android.magicnote.adapter.ColorPickerAdapter;
+import phucdv.android.magicnote.data.noteandlabel.NoteWithLabels;
 import phucdv.android.magicnote.data.noteitem.Note;
 import phucdv.android.magicnote.ui.BaseListNoteFragment;
+import phucdv.android.magicnote.ui.BaseViewModel;
 import phucdv.android.magicnote.ui.colorpicker.ColorPickerDialog;
 import phucdv.android.magicnote.util.NoteItemTouchCallback;
 
@@ -44,11 +46,20 @@ public class ArchiveFragment extends BaseListNoteFragment {
             mItemTouchHelper.attachToRecyclerView(mRecyclerView);
         }
         mViewModel = new ViewModelProvider(this).get(ArchiveViewModel.class);
+        mViewModel.init(this);
+
         mViewModel.getNotesInArchive().observe(getViewLifecycleOwner(), new Observer<List<Note>>() {
             @Override
             public void onChanged(List<Note> notes) {
                 mAdapter.setValues(notes);
                 notifyListChange(notes);
+            }
+        });
+
+        mViewModel.setCallback(new BaseViewModel.Callback() {
+            @Override
+            public void queryDoneNoteWithLabels(List<NoteWithLabels> noteWithLabels) {
+                mAdapter.setNoteWithLabels(noteWithLabels);
             }
         });
         return view;

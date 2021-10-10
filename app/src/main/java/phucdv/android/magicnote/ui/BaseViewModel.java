@@ -4,11 +4,16 @@ import android.app.Application;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import phucdv.android.magicnote.data.BaseItemRepository;
+import phucdv.android.magicnote.data.label.Label;
+import phucdv.android.magicnote.data.noteandlabel.NoteWithLabels;
 import phucdv.android.magicnote.data.noteitem.Note;
 import phucdv.android.magicnote.data.noteitem.NoteRepository;
 
@@ -17,19 +22,69 @@ public abstract class BaseViewModel extends AndroidViewModel {
     protected NoteRepository mNoteRepository;
     protected BaseItemRepository mBaseItemRepository;
     protected LiveData<List<Note>> mNotes;
+    protected List<NoteWithLabels> mNoteWithLabels;
+    protected LifecycleOwner mOwner;
+    private int mNumberQueryDoneLabels = 0;
+    private boolean mIsQueryDone = false;
+
+    private Callback mCallback;
+
+    public interface Callback{
+        public void queryDoneNoteWithLabels(List<NoteWithLabels> noteWithLabels);
+    }
 
     public BaseViewModel(@NonNull Application application) {
         super(application);
         mNoteRepository = new NoteRepository(application);
         mBaseItemRepository = new BaseItemRepository(application);
-        initNotes();
+        mNoteWithLabels = new ArrayList<>();
     }
 
     public LiveData<List<Note>> getListNotes(){
         return mNotes;
     }
 
+    public void init(LifecycleOwner owner){
+        mOwner = owner;
+        initNotes();
+        mNotes.observe(mOwner, new Observer<List<Note>>() {
+            @Override
+            public void onChanged(List<Note> notes) {
+                initNoteWithLabels(notes);
+            }
+        });
+    }
+
+    public void setCallback(Callback callback){
+        mCallback = callback;
+    }
+
     public abstract void initNotes();
+
+    public void initNoteWithLabels(List<Note> notes){
+        for(Note note : notes) {
+            NoteWithLabels noteWithLabels = new NoteWithLabels(getApplication(), mOwner, note);
+            noteWithLabels.setCallback(new NoteWithLabels.Callback() {
+                @Override
+                public void doneQueryLabel(List<Label> labels) {
+                    onQueryNoteWithLabels();
+                }
+            });
+            mNoteWithLabels.add(noteWithLabels);
+        }
+    }
+
+    private void onQueryNoteWithLabels(){
+        mNumberQueryDoneLabels++;
+        mIsQueryDone = mNumberQueryDoneLabels == mNotes.getValue().size();
+        if(mIsQueryDone){
+            mNumberQueryDoneLabels = 0;
+            mIsQueryDone = false;
+            if(mCallback != null){
+                mCallback.queryDoneNoteWithLabels(mNoteWithLabels);
+            }
+        }
+    }
 
     public void updateNote(Note note){
         mNoteRepository.updateNote(note);

@@ -15,6 +15,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import phucdv.android.magicnote.R;
+import phucdv.android.magicnote.data.label.Label;
+import phucdv.android.magicnote.data.noteandlabel.NoteWithLabels;
 import phucdv.android.magicnote.data.noteitem.Note;
 import phucdv.android.magicnote.noteinterface.OnItemLongClickListener;
 import phucdv.android.magicnote.noteinterface.ShareComponents;
@@ -24,6 +26,7 @@ import phucdv.android.magicnote.util.Constants;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 
@@ -39,6 +42,8 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     public final int ACTION_FILTER_COLOR = 2;
     public final int ACTION_FILTER_LABEL = 3;
     public final int ACTION_FILTER_TEXT = 4;
+    public final int ACTION_JUST_FILTER = 5;
+
     public final int COLOR_NONE = ColorPickerDialog.COLOR_NONE;
 
     private final int TYPE_DEFAULT = 0;
@@ -60,13 +65,25 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     private boolean mFilterCheckbox = false;
     private boolean mFilterImage = false;
     private int mFilterColor = COLOR_NONE;
-    private int mFilterLabel = -1;
+    private Hashtable<String, Label> mFilterLabel = new Hashtable<>();
     private String mFilterText = "";
 
+    private Hashtable<Long, NoteWithLabels> mNoteWithLabels = new Hashtable<>();
 
     public NoteItemRecyclerViewAdapter() {
         mValues = new ArrayList<>();
         mValuesFilted = mValues;
+    }
+
+    public Hashtable<Long, NoteWithLabels> getNoteWithLabels() {
+        return mNoteWithLabels;
+    }
+
+    public void setNoteWithLabels(List<NoteWithLabels> noteWithLabels) {
+        mNoteWithLabels.clear();
+        for(NoteWithLabels noteWithLabel : noteWithLabels){
+            mNoteWithLabels.put(noteWithLabel.getNote().getId(), noteWithLabel);
+        }
     }
 
     public void setValues(List<Note> values){
@@ -175,7 +192,7 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
         };
     }
 
-    public void filter(int action, String text, int value, boolean isOn){
+    public void filter(int action, String text, int value, Label label, boolean isOn){
         switch (action){
             case ACTION_FILTER_CHECKBOX:
                 mFilterCheckbox = isOn;
@@ -187,7 +204,11 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
                 mFilterColor = value;
                 break;
             case ACTION_FILTER_LABEL:
-                mFilterLabel = value;
+                if(isOn) {
+                    mFilterLabel.put(label.getName(), label);
+                } else {
+                    mFilterLabel.remove(label.getName());
+                }
                 break;
             case ACTION_FILTER_TEXT:
                 mFilterText = text;
@@ -198,115 +219,54 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
     }
 
     private List<Note> filter(){
-        if(mFilterCheckbox || mFilterImage || mFilterColor != COLOR_NONE || mFilterLabel != -1 || !mFilterText.isEmpty()) {
-            List<Note> filteredList = new ArrayList<>();
-            for (Note note : mValues) {
-                if (// 0001
-                        (mFilterCheckbox && note.isHas_checkbox()
-                                && !mFilterImage
-                                && mFilterColor == COLOR_NONE
-                                && mFilterText.isEmpty())
-                                ||
-                                // 0010
-                                (!mFilterCheckbox
-                                        && mFilterImage && note.isHas_image()
-                                        && mFilterColor == COLOR_NONE
-                                        && mFilterText.isEmpty())
-                                ||
-                                // 0011
-                                (mFilterCheckbox && note.isHas_checkbox()
-                                        && mFilterImage && note.isHas_image()
-                                        && mFilterColor == COLOR_NONE
-                                        && mFilterText.isEmpty())
-                                ||
-                                // 0100
-                                (!mFilterCheckbox
-                                        && !mFilterImage
-                                        && mFilterColor != COLOR_NONE && mFilterColor == note.getColor()
-                                        && mFilterText.isEmpty())
-                                ||
-                                // 0101
-                                (mFilterCheckbox && note.isHas_checkbox()
-                                        && !mFilterImage
-                                        && mFilterColor != COLOR_NONE && mFilterColor == note.getColor()
-                                        && mFilterText.isEmpty())
-                                ||
-                                // 0110
-                                (!mFilterCheckbox
-                                        && mFilterImage && note.isHas_image()
-                                        && mFilterColor != COLOR_NONE && mFilterColor == note.getColor()
-                                        && mFilterText.isEmpty())
-                                ||
-                                // 0111
-                                (mFilterCheckbox && note.isHas_checkbox()
-                                        && mFilterImage && note.isHas_image()
-                                        && mFilterColor != COLOR_NONE && mFilterColor == note.getColor()
-                                        && mFilterText.isEmpty())
-                                ||
-                                // 1000
-                                (!mFilterCheckbox
-                                        && !mFilterImage
-                                        && mFilterColor == COLOR_NONE
-                                        && !mFilterText.isEmpty() && note.getFull_text().toLowerCase().contains(mFilterText))
-                                ||
-                                // 1001
-                                (mFilterCheckbox && note.isHas_checkbox()
-                                        && !mFilterImage
-                                        && mFilterColor == COLOR_NONE
-                                        && !mFilterText.isEmpty() && note.getFull_text().toLowerCase().contains(mFilterText))
-                                ||
-                                // 1010
-                                (!mFilterCheckbox
-                                        && mFilterImage && note.isHas_image()
-                                        && mFilterColor == COLOR_NONE
-                                        && !mFilterText.isEmpty() && note.getFull_text().toLowerCase().contains(mFilterText))
-                                ||
-                                // 1011
-                                (mFilterCheckbox && note.isHas_checkbox()
-                                        && mFilterImage && note.isHas_image()
-                                        && mFilterColor == COLOR_NONE
-                                        && !mFilterText.isEmpty() && note.getFull_text().toLowerCase().contains(mFilterText))
-                                ||
-                                // 1100
-                                (!mFilterCheckbox
-                                        && !mFilterImage
-                                        && mFilterColor != COLOR_NONE && mFilterColor == note.getColor()
-                                        && !mFilterText.isEmpty() && note.getFull_text().toLowerCase().contains(mFilterText))
-                                ||
-                                // 1101
-                                (mFilterCheckbox && note.isHas_checkbox()
-                                        && !mFilterImage
-                                        && mFilterColor != COLOR_NONE && mFilterColor == note.getColor()
-                                        && !mFilterText.isEmpty() && note.getFull_text().toLowerCase().contains(mFilterText))
-                                ||
-                                // 1110
-                                (!mFilterCheckbox
-                                        && mFilterImage && note.isHas_image()
-                                        && mFilterColor != COLOR_NONE && mFilterColor == note.getColor()
-                                        && !mFilterText.isEmpty() && note.getFull_text().toLowerCase().contains(mFilterText))
-                                ||
-                                // 1111
-                                (mFilterCheckbox && note.isHas_checkbox()
-                                        && mFilterImage && note.isHas_image()
-                                        && mFilterColor != COLOR_NONE && mFilterColor == note.getColor()
-                                        && !mFilterText.isEmpty() && note.getFull_text().toLowerCase().contains(mFilterText))) {
-                    filteredList.add(note);
+        List<Note> filteredList = new ArrayList<>(mValues);
+        if(mFilterCheckbox){
+            filteredList.removeIf(note -> !note.isHas_checkbox());
+        }
+        if(mFilterImage){
+            filteredList.removeIf(note -> !note.isHas_image());
+        }
+        if(mFilterColor != COLOR_NONE){
+            filteredList.removeIf(note -> note.getColor() != mFilterColor);
+        }
+        if(!mFilterText.isEmpty()){
+            filteredList.removeIf(note -> !note.getFull_text().contains(mFilterText));
+        }
+        if(!mFilterLabel.isEmpty()){
+            filteredList.removeIf(note -> !isNoteHasLabels(note));
+        }
+        mValuesFilted = filteredList;
+        return mValuesFilted;
+    }
+
+    private boolean isNoteHasLabels(Note note){
+        NoteWithLabels noteWithLabels = mNoteWithLabels.get(note.getId());
+        if(noteWithLabels != null){
+            Hashtable<String, Label> hashtable = new Hashtable<>();
+            for(Label label : noteWithLabels.getLabels().getValue()){
+                hashtable.put(label.getName(), label);
+            }
+            for(Label label : mFilterLabel.values()){
+                if(!hashtable.containsKey(label.getName())){
+                    return false;
                 }
             }
-            mValuesFilted = filteredList;
-        } else {
-            mValuesFilted = mValues;
         }
-        return mValuesFilted;
+        return true;
     }
 
     public void clearFilter(){
         mFilterColor = COLOR_NONE;
-        mFilterLabel = -1;
+        mFilterLabel.clear();
         mFilterImage = false;
         mFilterCheckbox = false;
         mValuesFilted = mValues;
         notifyDataSetChanged();
+    }
+
+    public void clearFilterLabels(){
+        mFilterLabel.clear();
+        filter();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

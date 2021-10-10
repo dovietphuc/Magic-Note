@@ -25,13 +25,7 @@ import phucdv.android.magicnote.noteinterface.OnKeyClick;
 
 public class UndoRedoEditText extends androidx.appcompat.widget.AppCompatEditText {
 
-    public interface OnHashtagListener{
-        public void onHashtagCreate(String hashtag);
-        public void onHashtagDelete(String hashtag);
-    }
-
     private OnKeyClick mOnKeyClick;
-    private OnHashtagListener mOnHashtagListener;
 
     private final Stack<String> mPrevious = new Stack<>();
     private final Stack<String> mFollowing = new Stack<>();
@@ -46,10 +40,6 @@ public class UndoRedoEditText extends androidx.appcompat.widget.AppCompatEditTex
 
     public UndoRedoEditText(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-    }
-
-    public void setOnHashtagListener(OnHashtagListener onHashtagListener){
-        mOnHashtagListener = onHashtagListener;
     }
 
     @Override

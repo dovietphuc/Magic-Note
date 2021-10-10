@@ -30,5 +30,5 @@ public interface LabelDao {
     public Long[] insertAll(List<Label> labels);
 
     @Delete(entity = Label.class)
-    public Long delete(Label label);
+    public void delete(Label label);
 }

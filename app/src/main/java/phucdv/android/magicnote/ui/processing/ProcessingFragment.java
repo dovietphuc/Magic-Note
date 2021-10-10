@@ -26,14 +26,16 @@ import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 import phucdv.android.magicnote.R;
 import phucdv.android.magicnote.adapter.ColorPickerAdapter;
 import phucdv.android.magicnote.data.BaseItemRepository;
+import phucdv.android.magicnote.data.noteandlabel.NoteWithLabels;
 import phucdv.android.magicnote.data.noteitem.Note;
 import phucdv.android.magicnote.ui.BaseListNoteFragment;
+import phucdv.android.magicnote.ui.BaseViewModel;
 import phucdv.android.magicnote.ui.colorpicker.ColorPickerDialog;
 import phucdv.android.magicnote.util.NoteItemTouchCallback;
 
 public class ProcessingFragment extends BaseListNoteFragment {
 
-    private ProcessingViewModel mProcessingViewModel;
+    private ProcessingViewModel mViewModel;
     private ItemTouchHelper mItemTouchHelper;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -42,13 +44,21 @@ public class ProcessingFragment extends BaseListNoteFragment {
             mItemTouchHelper = new ItemTouchHelper(new NoteItemTouchCallback(ItemTouchHelper.LEFT, ItemTouchHelper.LEFT, this));
             mItemTouchHelper.attachToRecyclerView(mRecyclerView);
         }
-        mProcessingViewModel = new ViewModelProvider(this).get(ProcessingViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(ProcessingViewModel.class);
+        mViewModel.init(this);
 
-        mProcessingViewModel.getProcessingNotes().observe(getViewLifecycleOwner(), new Observer<List<Note>>() {
+        mViewModel.getProcessingNotes().observe(getViewLifecycleOwner(), new Observer<List<Note>>() {
             @Override
             public void onChanged(List<Note> notes) {
                 mAdapter.setValues(notes);
                 notifyListChange(notes);
+            }
+        });
+
+        mViewModel.setCallback(new BaseViewModel.Callback() {
+            @Override
+            public void queryDoneNoteWithLabels(List<NoteWithLabels> noteWithLabels) {
+                mAdapter.setNoteWithLabels(noteWithLabels);
             }
         });
         return view;
@@ -60,17 +70,17 @@ public class ProcessingFragment extends BaseListNoteFragment {
     }
 
     public void onSwipeLeft(RecyclerView.ViewHolder viewHolder){
-        if(viewHolder.getLayoutPosition() >= mProcessingViewModel.getProcessingNotes().getValue().size()){
+        if(viewHolder.getLayoutPosition() >= mViewModel.getProcessingNotes().getValue().size()){
             return;
         }
-        Note note = mProcessingViewModel.getProcessingNotes().getValue()
+        Note note = mViewModel.getProcessingNotes().getValue()
                 .get(viewHolder.getLayoutPosition());
-        mProcessingViewModel.moveToArchive(note);
+        mViewModel.moveToArchive(note);
         Snackbar.make(getView(), getString(R.string.move_to_archive), Snackbar.LENGTH_LONG)
                 .setAction(R.string.undo, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mProcessingViewModel.moveToProcessing(note);
+                        mViewModel.moveToProcessing(note);
                     }
                 }).show();
     }
@@ -85,7 +95,7 @@ public class ProcessingFragment extends BaseListNoteFragment {
 
     @Override
     public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-        if(viewHolder.getLayoutPosition() >= mProcessingViewModel.getProcessingNotes().getValue().size()){
+        if(viewHolder.getLayoutPosition() >= mViewModel.getProcessingNotes().getValue().size()){
             return;
         }
         new RecyclerViewSwipeDecorator.Builder(getContext(), c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
@@ -117,7 +127,7 @@ public class ProcessingFragment extends BaseListNoteFragment {
                 colorPickerDialog.setOnColorPickerListener(new ColorPickerAdapter.OnColorPickerListener() {
                     @Override
                     public void onColorPicked(int color) {
-                        mProcessingViewModel.updateColor(color, notes);
+                        mViewModel.updateColor(color, notes);
                     }
 
                     @Override
@@ -133,7 +143,7 @@ public class ProcessingFragment extends BaseListNoteFragment {
                         .setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                mProcessingViewModel.moveToArchive(mAdapter.getSelectedList());
+                                mViewModel.moveToArchive(mAdapter.getSelectedList());
                                 Snackbar.make(getView(), getString(R.string.move_to_archive), Snackbar.LENGTH_LONG).show();
                                 doneSelect();
                             }
@@ -153,7 +163,7 @@ public class ProcessingFragment extends BaseListNoteFragment {
                         .setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                mProcessingViewModel.moveToTrash(mAdapter.getSelectedList());
+                                mViewModel.moveToTrash(mAdapter.getSelectedList());
                                 Snackbar.make(getView(), getString(R.string.move_to_trash), Snackbar.LENGTH_LONG).show();
                                 doneSelect();
                             }
@@ -168,11 +178,11 @@ public class ProcessingFragment extends BaseListNoteFragment {
                 alertDialog.show();
                 return true;
             case R.id.action_pin:
-                mProcessingViewModel.pin(mAdapter.getSelectedList());
+                mViewModel.pin(mAdapter.getSelectedList());
                 doneSelect();
                 return true;
             case R.id.action_unpin:
-                mProcessingViewModel.unpin(mAdapter.getSelectedList());
+                mViewModel.unpin(mAdapter.getSelectedList());
                 doneSelect();
                 return true;
             case R.id.action_completely_delete:
@@ -182,7 +192,7 @@ public class ProcessingFragment extends BaseListNoteFragment {
                         .setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                mProcessingViewModel.deleteListNote(mAdapter.getSelectedList());
+                                mViewModel.deleteListNote(mAdapter.getSelectedList());
                                 Snackbar.make(getView(), getString(R.string.delete), Snackbar.LENGTH_LONG).show();
                                 doneSelect();
                             }
@@ -233,7 +243,7 @@ public class ProcessingFragment extends BaseListNoteFragment {
                 colorPickerDialog.setOnColorPickerListener(new ColorPickerAdapter.OnColorPickerListener() {
                     @Override
                     public void onColorPicked(int color) {
-                        mProcessingViewModel.updateColor(color, note);
+                        mViewModel.updateColor(color, note);
                     }
 
                     @Override
@@ -243,15 +253,15 @@ public class ProcessingFragment extends BaseListNoteFragment {
                 colorPickerDialog.showDialog((AppCompatActivity) getActivity());
                 break;
             case 1:
-                mProcessingViewModel.pinOrUnpin(note);
+                mViewModel.pinOrUnpin(note);
                 break;
             case 2:
                 break;
             case 3:
-                mProcessingViewModel.moveToArchive(note);
+                mViewModel.moveToArchive(note);
                 break;
             case 4:
-                mProcessingViewModel.moveToTrash(note);
+                mViewModel.moveToTrash(note);
                 break;
             case 5:
                 AlertDialog.Builder builder = new MaterialAlertDialogBuilder(getContext())
@@ -260,7 +270,7 @@ public class ProcessingFragment extends BaseListNoteFragment {
                         .setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                mProcessingViewModel.deleteNote(note.getId());
+                                mViewModel.deleteNote(note.getId());
                                 Snackbar.make(getView(), getString(R.string.delete), Snackbar.LENGTH_LONG).show();
                             }
                         })

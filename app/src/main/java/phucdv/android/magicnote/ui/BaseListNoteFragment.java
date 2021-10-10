@@ -33,16 +33,20 @@ import android.widget.TextView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 
 import phucdv.android.magicnote.R;
 import phucdv.android.magicnote.adapter.ColorPickerAdapter;
+import phucdv.android.magicnote.adapter.LabelSelectorAdapter;
 import phucdv.android.magicnote.adapter.NoteItemRecyclerViewAdapter;
+import phucdv.android.magicnote.data.label.Label;
 import phucdv.android.magicnote.data.noteitem.Note;
 import phucdv.android.magicnote.noteinterface.OnItemLongClickListener;
 import phucdv.android.magicnote.noteinterface.ShareComponents;
 import phucdv.android.magicnote.noteinterface.TouchHelper;
 import phucdv.android.magicnote.ui.colorpicker.ColorPickerDialog;
+import phucdv.android.magicnote.ui.label.LabelSelectorDialog;
 import phucdv.android.magicnote.util.CheckableImageButton;
 import phucdv.android.magicnote.util.Constants;
 import phucdv.android.magicnote.util.KeyBoardController;
@@ -62,6 +66,7 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
     private CheckableImageButton mBtnFilterImage;
     private ImageButton mBtnFilterColor;
     private ImageButton mBtnFilterLabel;
+    private List<Label> mSelectedLabels;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -99,6 +104,8 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
     @Override
     public void onResume() {
         super.onResume();
+        mSelectedLabels = null;
+        mFilterColor = ColorPickerDialog.COLOR_NONE;
         if(getContext() == null || getActivity() == null) return;
         if(getContext() instanceof ShareComponents){
             mShareComponents.getFloatingActionButton().setOnClickListener(this);
@@ -146,8 +153,12 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
                 mBtnFilterCheckbox.setChecked(false);
                 mBtnFilterImage.setChecked(false);
                 mBtnFilterColor.setBackgroundColor(getResources().getColor(R.color.unchecked_button));
+                mBtnFilterLabel.setBackgroundColor(getResources().getColor(R.color.unchecked_button));
                 mFilterColor = ColorPickerDialog.COLOR_NONE;
                 mAdapter.clearFilter();
+                if(mSelectedLabels != null) {
+                    mSelectedLabels = null;
+                }
                 return false;
             }
         });
@@ -187,7 +198,7 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
                     @Override
                     public void onColorPicked(int color) {
                         mFilterColor = color;
-                        mAdapter.filter(mAdapter.ACTION_FILTER_COLOR, "", color, false);
+                        mAdapter.filter(mAdapter.ACTION_FILTER_COLOR, "", color, null, false);
                         v.setBackgroundColor(
                                 mFilterColor == ColorPickerDialog.COLOR_NONE ?
                                         getResources().getColor(R.color.unchecked_button) : color);
@@ -201,6 +212,25 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
                 colorPickerDialog.showDialog((AppCompatActivity) getActivity());
                 break;
             case R.id.filter_label:
+                LabelSelectorDialog labelSelectorDialog = new LabelSelectorDialog();
+                if(mSelectedLabels != null){
+                    labelSelectorDialog.setSelectedLabels(mSelectedLabels);
+                }
+                labelSelectorDialog.setOnLabelSelectedChangeListener((selectedLabel, label, selected) -> {
+                    mAdapter.filter(mAdapter.ACTION_FILTER_LABEL, "", 0, label, selected);
+                    mSelectedLabels = new ArrayList<>(selectedLabel);
+                    v.setBackgroundColor(
+                            selectedLabel.isEmpty() ?
+                                    getResources().getColor(R.color.unchecked_button)
+                                    : getResources().getColor(R.color.checked_button));
+                });
+                labelSelectorDialog.setCallback(() -> {
+                    mAdapter.clearFilterLabels();
+                    if(mSelectedLabels != null) {
+                        mSelectedLabels = null;
+                    }
+                });
+                labelSelectorDialog.showDialog((AppCompatActivity) getActivity());
                 break;
         }
     }
@@ -247,10 +277,10 @@ public abstract class BaseListNoteFragment extends Fragment implements View.OnCl
     public void onCheckChange(View view, boolean isCheck) {
         switch (view.getId()) {
             case R.id.filter_checkbox:
-                mAdapter.filter(mAdapter.ACTION_FILTER_CHECKBOX, "", 0, isCheck);
+                mAdapter.filter(mAdapter.ACTION_FILTER_CHECKBOX, "", 0, null, isCheck);
                 break;
             case R.id.filter_image:
-                mAdapter.filter(mAdapter.ACTION_FILTER_IMAGE, "", 0, isCheck);
+                mAdapter.filter(mAdapter.ACTION_FILTER_IMAGE, "", 0, null, isCheck);
                 break;
         }
     }

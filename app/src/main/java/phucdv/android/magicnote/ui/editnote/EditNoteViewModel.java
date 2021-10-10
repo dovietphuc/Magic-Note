@@ -20,6 +20,8 @@ import phucdv.android.magicnote.data.BaseItem;
 import phucdv.android.magicnote.data.BaseItemRepository;
 import phucdv.android.magicnote.data.checkboxitem.CheckboxItem;
 import phucdv.android.magicnote.data.imageitem.ImageItem;
+import phucdv.android.magicnote.data.label.Label;
+import phucdv.android.magicnote.data.label.LabelRepository;
 import phucdv.android.magicnote.data.noteitem.Note;
 import phucdv.android.magicnote.data.noteitem.NoteRepository;
 import phucdv.android.magicnote.data.textitem.TextItem;
@@ -39,9 +41,12 @@ public class EditNoteViewModel extends AndroidViewModel {
     private MutableLiveData<Boolean> mIsArchive;
     private MutableLiveData<Boolean> mIsTrash;
 
+    private LabelRepository mLabelRepository;
+
     public EditNoteViewModel(Application application) {
         super(application);
         mNoteRepository = new NoteRepository(application);
+        mLabelRepository = new LabelRepository(application);
         mParentId = new MutableLiveData<Long>();
         mCurrentColor = new MutableLiveData<>(application.getColor(R.color.default_note_color));
         mIsPinned = new MutableLiveData<>(false);
@@ -185,14 +190,25 @@ public class EditNoteViewModel extends AndroidViewModel {
         mBaseItemRepository.updateImageItem(imageItem);
     }
 
+    public static List<Label> getLabels(String str){
+        ArrayList<Label> labels = new ArrayList<>();
+        str = str.replaceAll("[^#|ء-يA-Za-z0-9_-]", " ");
+        String[] split = str.trim().split(" ");
+        for(String s : split){
+            if(s.length() > 1 && s.contains("#")){
+                s = s.substring(s.indexOf("#"));
+                labels.add(new Label(s.substring(1)));
+            }
+        }
+        return labels;
+    }
+
     public void onSave(EditNoteItemRecyclerViewAdapter adapter, Note note){
         if(adapter.getAllTextCount() + adapter.getNoneTextItemCount() != 0 || note != null) {
             HashMap<BaseItem, Integer> hashMap = adapter.getHashMap();
 
             // Bkav PhucDVb: create base note item to insert/update
-            Note toInsertNote = (note == null) ? new Note("", Calendar.getInstance(), Calendar.getInstance(),
-                    false, false, 0, false,
-                    0, false, false, "") : note;
+            Note toInsertNote = (note == null) ? new Note() : note;
             toInsertNote.setColor(mCurrentColor.getValue());
             toInsertNote.setTime_last_update(Calendar.getInstance());
             toInsertNote.setIs_pinned(mIsPinned.getValue());
@@ -200,11 +216,14 @@ public class EditNoteViewModel extends AndroidViewModel {
             toInsertNote.setIs_deleted(mIsTrash.getValue());
             SortedList<BaseItem> listBase = adapter.getAdapterList();
 
+            String fullText = adapter.getAllTextContent();
+            List<Label> labels = getLabels(fullText);
+
             // Bkav PhucDVb: find title for note item
             if(adapter.getAllTextCount() == 0){
                 toInsertNote.setTitle("");
             } else {
-                toInsertNote.setFull_text(adapter.getAllTextContent());
+                toInsertNote.setFull_text(fullText);
 
                 for (int i = 0; i < listBase.size(); i++) {
                     BaseItem item = listBase.get(i);
@@ -255,9 +274,17 @@ public class EditNoteViewModel extends AndroidViewModel {
                                 insertImageItem((ImageItem) item);
                             }
                         }
+
+                        if(!labels.isEmpty()){
+                            mLabelRepository.insertAllForNote((LifecycleOwner) adapter.getContext(), (Long) output, labels);
+                        }
                     }
                 });
             } else {
+                if(!labels.isEmpty()){
+                    mLabelRepository.insertAllForNote((LifecycleOwner) adapter.getContext(), mParentId.getValue(), labels);
+                }
+
                 updateNote(toInsertNote);
                 initBaseItemRepository(note.getId());
                 for (BaseItem item : hashMap.keySet()) {

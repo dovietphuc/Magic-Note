@@ -77,6 +77,8 @@ public class PinNoteWidgetConfigureActivity extends AppCompatActivity
         setContentView(binding.getRoot());
 
         mViewModel = new ViewModelProvider(this).get(WidgetConfigViewModel.class);
+        mViewModel.init(this);
+
         mAdapter = new NoteItemRecyclerViewAdapter();
         mAdapter.setNoteItemClickListener(this);
 

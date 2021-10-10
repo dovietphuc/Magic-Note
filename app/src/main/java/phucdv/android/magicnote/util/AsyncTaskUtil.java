@@ -9,6 +9,9 @@ import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.util.Log;
 
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -17,12 +20,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 import phucdv.android.magicnote.data.checkboxitem.CheckboxItem;
 import phucdv.android.magicnote.data.checkboxitem.CheckboxItemDao;
 import phucdv.android.magicnote.data.imageitem.ImageItem;
 import phucdv.android.magicnote.data.imageitem.ImageItemDao;
+import phucdv.android.magicnote.data.label.Label;
+import phucdv.android.magicnote.data.label.LabelDao;
+import phucdv.android.magicnote.data.noteandlabel.NoteLabel;
+import phucdv.android.magicnote.data.noteandlabel.NoteLabelDao;
 import phucdv.android.magicnote.data.noteitem.Note;
 import phucdv.android.magicnote.data.noteitem.NoteDao;
 import phucdv.android.magicnote.data.textitem.TextItem;
@@ -47,7 +55,8 @@ public class AsyncTaskUtil {
 
         @Override
         protected void onPostExecute(Long aLong) {
-            mResponse.processFinish(aLong);
+            if(mResponse != null)
+                mResponse.processFinish(aLong);
         }
     }
 
@@ -68,7 +77,8 @@ public class AsyncTaskUtil {
 
         @Override
         protected void onPostExecute(Long aLong) {
-            mResponse.processFinish(aLong);
+            if(mResponse != null)
+                mResponse.processFinish(aLong);
         }
     }
 
@@ -89,7 +99,8 @@ public class AsyncTaskUtil {
 
         @Override
         protected void onPostExecute(Long[] longs) {
-            mResponse.processFinish(longs);
+            if(mResponse != null)
+                mResponse.processFinish(longs);
         }
     }
 
@@ -109,7 +120,8 @@ public class AsyncTaskUtil {
 
         @Override
         protected void onPostExecute(Long aLong) {
-            mResponse.processFinish(aLong);
+            if(mResponse != null)
+                mResponse.processFinish(aLong);
         }
     }
 
@@ -130,7 +142,8 @@ public class AsyncTaskUtil {
 
         @Override
         protected void onPostExecute(Long[] longs) {
-            mResponse.processFinish(longs);
+            if(mResponse != null)
+                mResponse.processFinish(longs);
         }
     }
 
@@ -354,7 +367,8 @@ public class AsyncTaskUtil {
 
         @Override
         protected void onPostExecute(Void unused) {
-            mResponse.processFinish(unused);
+            if(mResponse != null)
+                mResponse.processFinish(unused);
             super.onPostExecute(unused);
         }
     }
@@ -377,7 +391,8 @@ public class AsyncTaskUtil {
 
         @Override
         protected void onPostExecute(Void unused) {
-            mResponse.processFinish(unused);
+            if(mResponse != null)
+                mResponse.processFinish(unused);
             super.onPostExecute(unused);
         }
     }
@@ -400,7 +415,8 @@ public class AsyncTaskUtil {
 
         @Override
         protected void onPostExecute(Void unused) {
-            mResponse.processFinish(unused);
+            if(mResponse != null)
+                mResponse.processFinish(unused);
             super.onPostExecute(unused);
         }
     }
@@ -423,7 +439,8 @@ public class AsyncTaskUtil {
 
         @Override
         protected void onPostExecute(Void unused) {
-            mResponse.processFinish(unused);
+            if(mResponse != null)
+                mResponse.processFinish(unused);
             super.onPostExecute(unused);
         }
     }
@@ -459,10 +476,253 @@ public class AsyncTaskUtil {
 
         @Override
         protected void onPostExecute(String unused) {
-            mResponse.processFinish(unused);
+            if(mResponse != null)
+                mResponse.processFinish(unused);
             super.onPostExecute(unused);
         }
     }
 
+    public static class insertLabelAsyncTask extends AsyncTask<Label, Void, Long>{
 
+        private LabelDao mAsyncTaskDao;
+        private AsyncResponse mResponse;
+
+        public insertLabelAsyncTask(LabelDao labelDao, AsyncResponse response){
+            mAsyncTaskDao = labelDao;
+            mResponse = response;
+        }
+
+        @Override
+        protected Long doInBackground(Label... labels) {
+            return mAsyncTaskDao.insert(labels[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Long aLong) {
+            super.onPostExecute(aLong);
+            if(mResponse != null) {
+                mResponse.processFinish(aLong);
+            }
+        }
+    }
+
+    public static class insertListLabelAsyncTask extends AsyncTask<List<Label>, Void, Long[]>{
+
+        private LabelDao mAsyncTaskDao;
+        private AsyncResponse mResponse;
+
+        public insertListLabelAsyncTask(LabelDao labelDao, AsyncResponse response){
+            mAsyncTaskDao = labelDao;
+            mResponse = response;
+        }
+
+        @Override
+        protected Long[] doInBackground(List<Label>... lists) {
+            return mAsyncTaskDao.insertAll(lists[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Long[] longs) {
+            super.onPostExecute(longs);
+            if(mResponse != null){
+                mResponse.processFinish(longs);
+            }
+        }
+    }
+
+    public static class deleteLabelAsyncTask extends AsyncTask<Label, Void, Void>{
+
+        private LabelDao mAsyncTaskDao;
+
+        public deleteLabelAsyncTask(LabelDao labelDao){
+            mAsyncTaskDao = labelDao;
+        }
+
+        @Override
+        protected Void doInBackground(Label... labels) {
+            mAsyncTaskDao.delete(labels[0]);
+            return null;
+        }
+    }
+
+    public static class insertLabelNoteAsyncTask extends AsyncTask<NoteLabel, Void, Long>{
+
+        AsyncResponse mResponse;
+        NoteLabelDao mNoteLabelDao;
+
+        public insertLabelNoteAsyncTask(NoteLabelDao noteLabelDao, AsyncResponse response){
+            mNoteLabelDao = noteLabelDao;
+            mResponse = response;
+        }
+
+        @Override
+        protected Long doInBackground(NoteLabel... noteLabels) {
+            return mNoteLabelDao.insert(noteLabels[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Long aLong) {
+            super.onPostExecute(aLong);
+            if(mResponse != null) {
+                mResponse.processFinish(aLong);
+            }
+        }
+    }
+
+    public static class insertListLabelNoteAsyncTask extends AsyncTask<List<NoteLabel>, Void, Long[]>{
+
+        AsyncResponse mResponse;
+        NoteLabelDao mNoteLabelDao;
+
+        public insertListLabelNoteAsyncTask(NoteLabelDao noteLabelDao, AsyncResponse response){
+            mNoteLabelDao = noteLabelDao;
+            mResponse = response;
+        }
+
+        @Override
+        protected Long[] doInBackground(List<NoteLabel>... noteLabels) {
+            return mNoteLabelDao.insertAll(noteLabels[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Long[] aLong) {
+            super.onPostExecute(aLong);
+            if(mResponse != null) {
+                mResponse.processFinish(aLong);
+            }
+        }
+    }
+
+    public static class deleteLabelNoteAsyncTask extends AsyncTask<NoteLabel, Void, Void>{
+
+        NoteLabelDao mNoteLabelDao;
+
+        public deleteLabelNoteAsyncTask(NoteLabelDao noteLabelDao){
+            mNoteLabelDao = noteLabelDao;
+        }
+
+        @Override
+        protected Void doInBackground(NoteLabel... noteLabels) {
+            mNoteLabelDao.delete(noteLabels[0]);
+            return null;
+        }
+    }
+
+    public static class deleteListLabelNoteAsyncTask extends AsyncTask<List<NoteLabel>, Void, Void>{
+
+        NoteLabelDao mNoteLabelDao;
+
+        public deleteListLabelNoteAsyncTask(NoteLabelDao noteLabelDao){
+            mNoteLabelDao = noteLabelDao;
+        }
+
+        @Override
+        protected Void doInBackground(List<NoteLabel>... noteLabels) {
+            mNoteLabelDao.deleteAll(noteLabels[0]);
+            return null;
+        }
+    }
+
+    public static class deleteLabelNoteForNoteAsyncTask extends AsyncTask<Long, Void, Void>{
+
+        NoteLabelDao mNoteLabelDao;
+
+        public deleteLabelNoteForNoteAsyncTask(NoteLabelDao noteLabelDao){
+            mNoteLabelDao = noteLabelDao;
+        }
+
+        @Override
+        protected Void doInBackground(Long... note_id) {
+            mNoteLabelDao.deleteForNote(note_id[0]);
+            return null;
+        }
+    }
+
+    public static class insertLabelForNoteAsynTask extends AsyncTask<Void, Void, Void>{
+        LifecycleOwner mOwner;
+        LabelDao mLabelDao;
+        NoteLabelDao mNoteLabelDao;
+        long mNoteId;
+        Label mLabel;
+        Label mConflict;
+
+        public insertLabelForNoteAsynTask(LifecycleOwner owner, LabelDao labelDao, NoteLabelDao noteLabelDao, long note_id, Label label){
+            mLabelDao = labelDao;
+            mNoteLabelDao = noteLabelDao;
+            mNoteId = note_id;
+            mLabel = label;
+            mOwner = owner;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            mNoteLabelDao.deleteForNote(mNoteId);
+            Long label_id = mLabelDao.insert(mLabel);
+            if(label_id > 0){
+                mNoteLabelDao.insert(new NoteLabel(mNoteId, label_id));
+            } else {
+                mConflict = mLabel;
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            super.onPostExecute(unused);
+            if(mConflict != null){
+                mLabelDao.getLabelByName(mConflict.getName()).observe(mOwner, new Observer<Label>() {
+                    @Override
+                    public void onChanged(Label label) {
+                        new insertLabelNoteAsyncTask(mNoteLabelDao, null).execute(new NoteLabel(mNoteId, label.getId()));
+                    }
+                });
+            }
+        }
+    }
+
+    public static class insertListLabelForNoteAsynTask extends AsyncTask<Void, Void, Void>{
+
+        LifecycleOwner mOwner;
+        LabelDao mLabelDao;
+        NoteLabelDao mNoteLabelDao;
+        long mNoteId;
+        List<Label> mLabels;
+        List<Label> mConflicts;
+
+        public insertListLabelForNoteAsynTask(LifecycleOwner owner, LabelDao labelDao, NoteLabelDao noteLabelDao, long note_id, List<Label> labels){
+            mLabelDao = labelDao;
+            mNoteLabelDao = noteLabelDao;
+            mNoteId = note_id;
+            mLabels = labels;
+            mOwner = owner;
+            mConflicts = new ArrayList<>();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            mNoteLabelDao.deleteForNote(mNoteId);
+            for (Label label : mLabels) {
+                Long label_id = mLabelDao.insert(label);
+                if (label_id > 0) {
+                    mNoteLabelDao.insert(new NoteLabel(mNoteId, label_id));
+                } else {
+                    mConflicts.add(label);
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            super.onPostExecute(unused);
+            for(Label label : mConflicts){
+                mLabelDao.getLabelByName(label.getName()).observe(mOwner, new Observer<Label>() {
+                    @Override
+                    public void onChanged(Label label) {
+                        new insertLabelNoteAsyncTask(mNoteLabelDao, null).execute(new NoteLabel(mNoteId, label.getId()));
+                    }
+                });
+            }
+        }
+    }
 }

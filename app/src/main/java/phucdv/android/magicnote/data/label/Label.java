@@ -1,6 +1,7 @@
 package phucdv.android.magicnote.data.label;
 
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
@@ -10,9 +11,6 @@ public class Label {
     @PrimaryKey(autoGenerate = true)
     private long id;
     private String name;
-
-    public Label() {
-    }
 
     public Label(String name) {
         this.name = name;

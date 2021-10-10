@@ -9,6 +9,8 @@ import phucdv.android.magicnote.data.imageitem.ImageItem;
 import phucdv.android.magicnote.data.imageitem.ImageItemDao;
 import phucdv.android.magicnote.data.label.Label;
 import phucdv.android.magicnote.data.label.LabelDao;
+import phucdv.android.magicnote.data.noteandlabel.NoteLabel;
+import phucdv.android.magicnote.data.noteandlabel.NoteLabelDao;
 import phucdv.android.magicnote.data.noteitem.Note;
 import phucdv.android.magicnote.data.noteitem.NoteDao;
 import phucdv.android.magicnote.data.textitem.TextItem;
@@ -27,8 +29,9 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
         TextItem.class,
         CheckboxItem.class,
         ImageItem.class,
-        Label.class
-}, version = 5,  exportSchema = false)
+        Label.class,
+        NoteLabel.class
+}, version = 6,  exportSchema = false)
 @TypeConverters(Converters.class)
 public abstract class NoteRoomDatabase extends RoomDatabase {
     public abstract NoteDao noteDao();
@@ -36,6 +39,7 @@ public abstract class NoteRoomDatabase extends RoomDatabase {
     public abstract CheckboxItemDao checkboxItemDao();
     public abstract ImageItemDao imageItemDao();
     public abstract LabelDao labelDao();
+    public abstract NoteLabelDao noteLabelDao();
     private static NoteRoomDatabase INSTANCE;
 
     public static NoteRoomDatabase getDatabase(Context context){

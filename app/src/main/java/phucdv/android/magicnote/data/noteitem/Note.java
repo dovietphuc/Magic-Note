@@ -1,6 +1,7 @@
 package phucdv.android.magicnote.data.noteitem;
 
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverter;
 import androidx.room.TypeConverters;
@@ -44,6 +45,7 @@ public class Note {
         this.full_text = full_text;
     }
 
+    @Ignore
     public Note() {
         this.title = "";
         this.time_create = Calendar.getInstance();
