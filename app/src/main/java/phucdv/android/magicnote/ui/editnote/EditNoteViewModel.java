@@ -275,15 +275,11 @@ public class EditNoteViewModel extends AndroidViewModel {
                             }
                         }
 
-                        if(!labels.isEmpty()){
-                            mLabelRepository.insertAllForNote((LifecycleOwner) adapter.getContext(), (Long) output, labels);
-                        }
+                        mLabelRepository.insertAllForNote((LifecycleOwner) adapter.getContext(), (Long) output, labels);
                     }
                 });
             } else {
-                if(!labels.isEmpty()){
-                    mLabelRepository.insertAllForNote((LifecycleOwner) adapter.getContext(), mParentId.getValue(), labels);
-                }
+                mLabelRepository.insertAllForNote((LifecycleOwner) adapter.getContext(), mParentId.getValue(), labels);
 
                 updateNote(toInsertNote);
                 initBaseItemRepository(note.getId());

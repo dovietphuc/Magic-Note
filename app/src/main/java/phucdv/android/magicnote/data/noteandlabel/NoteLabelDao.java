@@ -35,4 +35,7 @@ public interface NoteLabelDao {
 
     @Delete(entity = NoteLabel.class)
     public void deleteAll(List<NoteLabel> noteLabels);
+
+    @Query("DELETE FROM label WHERE id NOT IN (SELECT label_id FROM note_label)")
+    public void deleteLabelIfNeed();
 }

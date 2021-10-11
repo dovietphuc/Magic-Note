@@ -557,7 +557,8 @@ public class AsyncTaskUtil {
 
         @Override
         protected Long doInBackground(NoteLabel... noteLabels) {
-            return mNoteLabelDao.insert(noteLabels[0]);
+            Long id = mNoteLabelDao.insert(noteLabels[0]);
+            return id;
         }
 
         @Override
@@ -715,14 +716,38 @@ public class AsyncTaskUtil {
         @Override
         protected void onPostExecute(Void unused) {
             super.onPostExecute(unused);
-            for(Label label : mConflicts){
+            for(int i = 0; i < mConflicts.size(); i++){
+                Label label = mConflicts.get(i);
+                final int index = i;
                 mLabelDao.getLabelByName(label.getName()).observe(mOwner, new Observer<Label>() {
                     @Override
                     public void onChanged(Label label) {
-                        new insertLabelNoteAsyncTask(mNoteLabelDao, null).execute(new NoteLabel(mNoteId, label.getId()));
+                        new insertLabelNoteAsyncTask(mNoteLabelDao, new AsyncResponse() {
+                            @Override
+                            public void processFinish(Object output) {
+                                if(index == mConflicts.size() - 1){
+                                    new deleteLabelIfNeedAsyncTask(mNoteLabelDao).execute();
+                                }
+                            }
+                        }).execute(new NoteLabel(mNoteId, label.getId()));
                     }
                 });
             }
+        }
+    }
+
+    public static class deleteLabelIfNeedAsyncTask extends AsyncTask<Void, Void, Void>{
+
+        NoteLabelDao mNoteLabelDao;
+
+        public deleteLabelIfNeedAsyncTask(NoteLabelDao noteLabelDao){
+            mNoteLabelDao = noteLabelDao;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            mNoteLabelDao.deleteLabelIfNeed();
+            return null;
         }
     }
 }

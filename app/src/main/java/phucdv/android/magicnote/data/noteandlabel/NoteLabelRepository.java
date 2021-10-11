@@ -42,4 +42,9 @@ public class NoteLabelRepository {
     public void deleteForNote(long note_id){
         new AsyncTaskUtil.deleteLabelNoteForNoteAsyncTask(mNoteLabelDao).execute(note_id);
     }
+
+
+    public void deleteLabelIfNeed(){
+        new AsyncTaskUtil.deleteLabelIfNeedAsyncTask(mNoteLabelDao).execute();
+    }
 }
