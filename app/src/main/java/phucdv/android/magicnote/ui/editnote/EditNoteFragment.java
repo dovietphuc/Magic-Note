@@ -452,9 +452,9 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener, 
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == TAKE_PHOTO_REQUEST_CODE) {
-                mAdapter.addImageItem(FileHelper.photoDir() + File.separator + mImageUrl, mAdapter.getFocusPosition() + 1);
+                mAdapter.addImageItem(FileHelper.photoDir(getContext()) + File.separator + mImageUrl, mAdapter.getFocusPosition() + 1);
             } else if (requestCode == SELECT_PHOTO_REQUEST_CODE) {
-                new AsyncTaskUtil.copyAsynTask(getContext(), data.getData(), FileHelper.photoDir(),
+                new AsyncTaskUtil.copyAsynTask(getContext(), data.getData(), FileHelper.photoDir(getContext()),
                         FileHelper.createFileName("png"),
                         new AsyncResponse() {
                             @Override
@@ -471,7 +471,7 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener, 
 
     private String takePicture() {
         String filename = FileHelper.createFileName("png");
-        String dir = FileHelper.photoDir();
+        String dir = FileHelper.photoDir(getContext());
         FileHelper.mkdir(dir);
         String path = dir + File.separator + filename;
         File file = new File(path);

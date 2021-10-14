@@ -6,7 +6,8 @@
         <activity
             android:name=".DrawerActivity"
             android:exported="true"
-            android:theme="@style/Theme.Drawer">
+            android:theme="@style/Theme.Drawer"
+            android:requestLegacyExternalStorage="true">
             <intent-filter>
                 <action android:name="phucdv.intent.action.HAND_DRAWER" />
                 <category android:name="android.intent.category.DEFAULT" />

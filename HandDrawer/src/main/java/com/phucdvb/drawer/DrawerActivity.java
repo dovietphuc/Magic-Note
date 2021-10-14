@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.UserHandle;
@@ -90,11 +91,19 @@ public class DrawerActivity extends AppCompatActivity implements View.OnClickLis
                 protected Intent doInBackground(Void... voids) {
                     Bitmap bitmap = viewToBitmap(mDrawerView);
                     String filename = String.valueOf(new Date().getTime()) + ".png";
-                    String dir = Environment.getExternalStorageDirectory().toString()
-                            + File.separator + "MagicNote"
-                            + File.separator + "handDrawer";
+                    String dir;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
+                        dir = getExternalFilesDir(Environment.DIRECTORY_DCIM)
+                                + File.separator + "MagicNote"
+                                + File.separator + "handDrawer";
+                    }
+                    else
+                    {
+                        dir = Environment.getExternalStorageDirectory().toString()
+                                + File.separator + "MagicNote"
+                                + File.separator + "handDrawer";
+                    }
                     String path = dir + File.separator + filename;
-
                     mkdir(dir);
                     saveBitmapToFile(bitmap, path);
                     Intent intent = new Intent();
@@ -130,7 +139,9 @@ public class DrawerActivity extends AppCompatActivity implements View.OnClickLis
 
     public void mkdir(String dir){
         try {
-            Files.createDirectories(Paths.get(dir));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Files.createDirectories(Paths.get(dir));
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

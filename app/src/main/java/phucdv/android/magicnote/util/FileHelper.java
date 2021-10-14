@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 
@@ -45,18 +46,40 @@ public class FileHelper {
 
     public static void mkdir(String dir){
         try {
-            Files.createDirectories(Paths.get(dir));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Files.createDirectories(Paths.get(dir));
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static String photoDir(){
-        return Environment.getExternalStorageDirectory() + File.separator + "MagicNote" + File.separator + "photo";
+    public static String photoDir(Context context){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
+            return context.getExternalFilesDir(Environment.DIRECTORY_DCIM)
+                    + File.separator + "MagicNote"
+                    + File.separator + "photo";
+        }
+        else
+        {
+            return Environment.getExternalStorageDirectory().toString()
+                    + File.separator + "MagicNote"
+                    + File.separator + "photo";
+        }
     }
 
-    public static String handDrawDir(){
-        return Environment.getExternalStorageDirectory() + File.separator + "MagicNote" + File.separator + "handDrawer";
+    public static String handDrawDir(Context context){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
+            return context.getExternalFilesDir(Environment.DIRECTORY_DCIM)
+                    + File.separator + "MagicNote"
+                    + File.separator + "handDrawer";
+        }
+        else
+        {
+            return Environment.getExternalStorageDirectory().toString()
+                    + File.separator + "MagicNote"
+                    + File.separator + "handDrawer";
+        }
     }
 
     public static String createFileName(String ext){
