@@ -35,8 +35,7 @@
 
         <receiver
             android:name=".alarm.AlarmReceiver"
-            android:enabled="true"
-            android:exported="false">
+            android:exported="true">
 
             <intent-filter>
                 <action android:name="phucdv.android.action.SET_UP_ALARM" />

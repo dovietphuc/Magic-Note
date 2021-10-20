@@ -26,8 +26,8 @@ public class DateTimePickerDialog extends DialogFragment implements View.OnClick
     public interface DateTimePickerDialogListener{
         public void onDatePicked(DatePicker v, int day, int month, int year);
         public void onTimePicked(TimePicker v, int hour, int min);
-        public void onConfirm(DateTimePickerDialog dialog);
-        public void onCancel(DateTimePickerDialog dialog);
+        public void onConfirm(DateTimePickerDialog dialog, int day, int month, int year, int hour, int min);
+        public void onCancel(DateTimePickerDialog dialog, int day, int month, int year, int hour, int min);
     }
 
     private DateTimePickerDialogListener mDateTimePickerDialogListener;
@@ -135,14 +135,14 @@ public class DateTimePickerDialog extends DialogFragment implements View.OnClick
                 break;
             case R.id.btnCancel:
                 if (mDateTimePickerDialogListener != null){
-                    mDateTimePickerDialogListener.onCancel(this);
+                    mDateTimePickerDialogListener.onCancel(this, mDay, mMonth, mYear, mHour, mMinute);
                 } else {
                     dismiss();
                 }
                 break;
             case R.id.btnConfirm:
                 if (mDateTimePickerDialogListener != null){
-                    mDateTimePickerDialogListener.onConfirm(this);
+                    mDateTimePickerDialogListener.onConfirm(this, mDay, mMonth, mYear, mHour, mMinute);
                 } else {
                     dismiss();
                 }
@@ -156,6 +156,9 @@ public class DateTimePickerDialog extends DialogFragment implements View.OnClick
                     @Override
                     public void onDateSet(DatePicker v, int y, int m, int d) {
                         mPickDate.setText(d + "/" + (m + 1) + "/" + y);
+                        mYear = y;
+                        mMonth = m;
+                        mDay = d;
                         if(mDateTimePickerDialogListener != null){
                             mDateTimePickerDialogListener.onDatePicked(v, d, m, y);
                         }
@@ -171,6 +174,8 @@ public class DateTimePickerDialog extends DialogFragment implements View.OnClick
                     public void onTimeSet(TimePicker view, int hour,
                                           int minute) {
                         mPickTime.setText(hour + ":" + minute);
+                        mHour = hour;
+                        mMinute = minute;
                         if (mDateTimePickerDialogListener != null){
                             mDateTimePickerDialogListener.onTimePicked(view, hour, minute);
                         }

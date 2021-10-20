@@ -49,6 +49,7 @@ import java.util.List;
 import phucdv.android.magicnote.R;
 import phucdv.android.magicnote.adapter.ColorPickerAdapter;
 import phucdv.android.magicnote.adapter.EditNoteItemRecyclerViewAdapter;
+import phucdv.android.magicnote.alarm.AlarmReceiver;
 import phucdv.android.magicnote.data.checkboxitem.CheckboxItem;
 import phucdv.android.magicnote.data.imageitem.ImageItem;
 import phucdv.android.magicnote.data.noteitem.Note;
@@ -343,12 +344,19 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener, 
                     }
 
                     @Override
-                    public void onConfirm(DateTimePickerDialog dialog) {
-
+                    public void onConfirm(DateTimePickerDialog dialog, int day, int month, int year, int hour, int min) {
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.clear();
+                        calendar.set(year, month, day, hour, min, 0);
+                        Intent intent = new Intent(getContext(), AlarmReceiver.class);
+                        intent.setAction(AlarmReceiver.ACTION_SET_UP_ALARM);
+                        intent.putExtra(AlarmReceiver.EXTRA_TIME_REMINDER, calendar.getTimeInMillis());
+                        getActivity().sendBroadcast(intent);
+                        dialog.dismiss();
                     }
 
                     @Override
-                    public void onCancel(DateTimePickerDialog dialog) {
+                    public void onCancel(DateTimePickerDialog dialog, int day, int month, int year, int hour, int min) {
                         dialog.dismiss();
                     }
                 });

@@ -76,7 +76,7 @@ public class MagicNoteActivity extends AppCompatActivity implements ShareCompone
         mAnimatedVectorDrawable = (AnimatedVectorDrawable) mFab.getDrawable();
 
         Intent intent = getIntent();
-        if(intent.getAction().equals(ACTION_NEW_NOTE)){
+        if(intent != null && intent.getAction() != null && intent.getAction().equals(ACTION_NEW_NOTE)){
             Bundle bundle = new Bundle();
             bundle.putLong(Constants.ARG_PARENT_ID,
                     intent.getLongExtra(Constants.ARG_PARENT_ID, Constants.UNKNOW_PARENT_ID));
