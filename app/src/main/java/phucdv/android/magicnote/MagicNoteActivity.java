@@ -16,6 +16,8 @@ import android.widget.TextView;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,6 +46,7 @@ public class MagicNoteActivity extends AppCompatActivity implements ShareCompone
     private TextView mTitleBottomAppBar;
     private AnimatedVectorDrawable mAnimatedVectorDrawable;
     private Toolbar mToolbar;
+    private FirebaseUser mFirebaseUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +62,7 @@ public class MagicNoteActivity extends AppCompatActivity implements ShareCompone
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_processing, R.id.nav_archive, R.id.nav_recycle_bin)
+                R.id.nav_processing, R.id.nav_archive, R.id.nav_recycle_bin, R.id.nav_backUpActivity)
                 .setDrawerLayout(mDrawer)
                 .build();
         mNavController = Navigation.findNavController(this, R.id.nav_host_fragment);
@@ -87,6 +90,14 @@ public class MagicNoteActivity extends AppCompatActivity implements ShareCompone
     @Override
     protected void onResume() {
         super.onResume();
+        final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseUser = firebaseAuth.getCurrentUser();
+        TextView txtUser = mNavigationView.getHeaderView(0).findViewById(R.id.txt_user);
+        if (mFirebaseUser == null){
+            txtUser.setText(R.string.nav_header_subtitle);
+        }else {
+            txtUser.setText(mFirebaseUser.getEmail());
+        }
     }
 
     @Override

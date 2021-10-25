@@ -4,7 +4,7 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Magic note</string>
-    <string name="nav_header_subtitle">dovietphuc0131@gmail.com</string>
+    <string name="nav_header_subtitle">Not logged in yet!</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
@@ -19,7 +19,7 @@
     <string name="notes">Notes</string>
     <string name="note">Note</string>
     <string name="add_checkbox">Add checkbox</string>
-    <string name="text_here">Text here...</string>
+    <string name="text_here">Text here…</string>
     <string name="checkbox_item">Checkbox item</string>
     <string name="none_text">No additional text</string>
     <string name="warning">Warning</string>
@@ -66,4 +66,17 @@
     <string name="app_widget_description">This is an app widget description</string>
     <string name="all_label">All label</string>
     <string name="deselect">Deselect</string>
+    <string name="sign_up">Sign up</string>
+    <string name="backup_details">By Signing Up you can keep your notes online and if your phone is lost,stolen or Magic note is Uninstalled you can Restore them when you install Magic note</string>
+    <string name="email_address">Email address</string>
+    <string name="password">Password</string>
+    <string name="repeat_password">Repeat password</string>
+    <string name="already_signed_in_login">Already signed up? Login</string>
+    <string name="invalid_inputs">Invalid inputs</string>
+    <string name="sign_up_successful">Sign Up successful</string>
+    <string name="login">Login</string>
+    <string name="forget_password">Forget password?</string>
+    <string name="text_sign_up_now">Haven\'t sign up before? Sign Up Now</string>
+    <string name="auto_back_up">Auto back up</string>
+    <string name="logout">Logout</string>
 </resources>

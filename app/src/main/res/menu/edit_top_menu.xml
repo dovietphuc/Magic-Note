@@ -10,7 +10,8 @@
         android:id="@+id/action_reminder"
         android:icon="@drawable/ic_baseline_notifications_active_24"
         android:title="@string/reminder"
-        app:showAsAction="always"/>
+        app:showAsAction="always"
+        android:visible="false"/>
     <item
         android:id="@+id/action_pin"
         android:icon="@drawable/ic_baseline_push_pin_24"
