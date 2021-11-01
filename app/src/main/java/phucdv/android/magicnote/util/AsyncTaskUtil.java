@@ -12,6 +12,9 @@ import android.util.Log;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -660,7 +663,9 @@ public class AsyncTaskUtil {
             mNoteLabelDao.deleteForNote(mNoteId);
             Long label_id = mLabelDao.insert(mLabel);
             if(label_id > 0){
-                mNoteLabelDao.insert(new NoteLabel(mNoteId, label_id));
+                final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+                FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                mNoteLabelDao.insert(new NoteLabel(mNoteId, label_id, firebaseUser != null ? firebaseUser.getUid() : null));
             } else {
                 mConflict = mLabel;
             }
@@ -674,7 +679,9 @@ public class AsyncTaskUtil {
                 mLabelDao.getLabelByName(mConflict.getName()).observe(mOwner, new Observer<Label>() {
                     @Override
                     public void onChanged(Label label) {
-                        new insertLabelNoteAsyncTask(mNoteLabelDao, null).execute(new NoteLabel(mNoteId, label.getId()));
+                        final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+                        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                        new insertLabelNoteAsyncTask(mNoteLabelDao, null).execute(new NoteLabel(mNoteId, label.getId(), firebaseUser != null ? firebaseUser.getUid() : null));
                     }
                 });
             }
@@ -705,7 +712,9 @@ public class AsyncTaskUtil {
             for (Label label : mLabels) {
                 Long label_id = mLabelDao.insert(label);
                 if (label_id > 0) {
-                    mNoteLabelDao.insert(new NoteLabel(mNoteId, label_id));
+                    final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+                    FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                    mNoteLabelDao.insert(new NoteLabel(mNoteId, label_id, firebaseUser != null ? firebaseUser.getUid() : null));
                 } else {
                     mConflicts.add(label);
                 }
@@ -722,6 +731,8 @@ public class AsyncTaskUtil {
                 mLabelDao.getLabelByName(label.getName()).observe(mOwner, new Observer<Label>() {
                     @Override
                     public void onChanged(Label label) {
+                        final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+                        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                         new insertLabelNoteAsyncTask(mNoteLabelDao, new AsyncResponse() {
                             @Override
                             public void processFinish(Object output) {
@@ -729,7 +740,7 @@ public class AsyncTaskUtil {
                                     new deleteLabelIfNeedAsyncTask(mNoteLabelDao).execute();
                                 }
                             }
-                        }).execute(new NoteLabel(mNoteId, label.getId()));
+                        }).execute(new NoteLabel(mNoteId, label.getId(), firebaseUser != null ? firebaseUser.getUid() : null));
                     }
                 });
             }

@@ -1,25 +1,12 @@
-package phucdv.android.magicnote.data.noteitem;
-
-import androidx.room.Entity;
-import androidx.room.Ignore;
-import androidx.room.PrimaryKey;
-import androidx.room.TypeConverter;
-import androidx.room.TypeConverters;
+package phucdv.android.magicnote.sync;
 
 import java.util.Calendar;
 
-import phucdv.android.magicnote.data.BaseItem;
-import phucdv.android.magicnote.data.Converters;
-
-@Entity(tableName = "note")
-public class Note {
-    @PrimaryKey
+public class BackUpNoteItem {
     private long id;
     private String title;
-    @TypeConverters(Converters.class)
-    private Calendar time_create;
-    @TypeConverters(Converters.class)
-    private Calendar time_last_update;
+    private long time_create;
+    private long time_last_update;
     private boolean is_archive;
     private boolean is_deleted;
     private long order_in_parent;
@@ -30,10 +17,9 @@ public class Note {
     private String full_text;
     private String uid;
 
-    public Note(String title, Calendar time_create, Calendar time_last_update, boolean is_archive,
+    public BackUpNoteItem(String title, long time_create, long time_last_update, boolean is_archive,
                 boolean is_deleted, long order_in_parent, boolean is_pinned, int color,
                 boolean has_checkbox, boolean has_image, String full_text, String uid) {
-        this.id = Calendar.getInstance().getTimeInMillis();
         this.title = title;
         this.time_create = time_create;
         this.time_last_update = time_last_update;
@@ -48,12 +34,10 @@ public class Note {
         this.uid = uid;
     }
 
-    @Ignore
-    public Note() {
-        this.id = Calendar.getInstance().getTimeInMillis();
+    public BackUpNoteItem() {
         this.title = "";
-        this.time_create = Calendar.getInstance();
-        this.time_last_update = Calendar.getInstance();
+        this.time_create = Calendar.getInstance().getTimeInMillis();
+        this.time_last_update = Calendar.getInstance().getTimeInMillis();
         this.is_archive = false;
         this.is_deleted = false;
         this.order_in_parent = 0;
@@ -81,19 +65,19 @@ public class Note {
         this.title = title;
     }
 
-    public Calendar getTime_create() {
+    public long getTime_create() {
         return time_create;
     }
 
-    public void setTime_create(Calendar time_create) {
+    public void setTime_create(long time_create) {
         this.time_create = time_create;
     }
 
-    public Calendar getTime_last_update() {
+    public long getTime_last_update() {
         return time_last_update;
     }
 
-    public void setTime_last_update(Calendar time_last_update) {
+    public void setTime_last_update(long time_last_update) {
         this.time_last_update = time_last_update;
     }
 

@@ -1,5 +1,6 @@
 package phucdv.android.magicnote.authentic;
 
+import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -17,12 +18,20 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 import phucdv.android.magicnote.R;
+import phucdv.android.magicnote.sync.DataSyncReceiver;
 
 public class LoginActivity extends AppCompatActivity {
 
     private EditText email, password;
     private ProgressBar progressBar;
     private FirebaseAuth firebaseAuth;
+
+    @Override
+    public void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        firebaseAuth.signOut();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +65,11 @@ public class LoginActivity extends AppCompatActivity {
                                     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
                                     Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_LONG).show();
+                                    Intent intent = new Intent();
+                                    intent.setAction(DataSyncReceiver.ACTION_SYNC);
+                                    intent.setComponent(new ComponentName(LoginActivity.this, DataSyncReceiver.class));
+                                    sendBroadcast(intent);
                                     finish();
-                                    startActivity(new Intent(LoginActivity.this,BackUpActivity.class));
                                 } else {
                                     progressBar.setVisibility(View.GONE);
                                     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
@@ -75,7 +87,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void forgetPassword(View view) {
-//        startActivity(new Intent(this,ResetPasswordActivity.class));
+        startActivity(new Intent(this,ResetPasswordActivity.class));
     }
 
     public void signUpNow(View view) {

@@ -50,6 +50,7 @@ public abstract class NoteRoomDatabase extends RoomDatabase {
                             NoteRoomDatabase.class, Constants.DB_NAME)
                             .fallbackToDestructiveMigration()
                             .addCallback(sRoomDatabaseCallback)
+                            .allowMainThreadQueries()
                             .build();
                 }
             }

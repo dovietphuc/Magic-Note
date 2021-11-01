@@ -34,8 +34,7 @@
         android:label="@string/edit_note" >
     </fragment>
     <activity
-        android:id="@+id/nav_backUpActivity"
-        android:name="phucdv.android.magicnote.authentic.BackUpActivity"
-        android:label="@string/back_up"
-        tools:layout="@layout/activity_back_up" />
+        android:id="@+id/nav_loginActivity"
+        android:name="phucdv.android.magicnote.authentic.LoginActivity"
+        android:label="@string/login" />
 </navigation>

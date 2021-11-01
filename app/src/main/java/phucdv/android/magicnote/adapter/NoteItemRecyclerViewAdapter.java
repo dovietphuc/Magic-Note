@@ -23,6 +23,7 @@ import phucdv.android.magicnote.noteinterface.ShareComponents;
 import phucdv.android.magicnote.ui.colorpicker.ColorPickerDialog;
 import phucdv.android.magicnote.util.Constants;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -339,9 +340,8 @@ public class NoteItemRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVi
             }
             mTitleView.setText(note.getTitle());
             Calendar calendar = note.getTime_last_update();
-            String time = calendar.get(Calendar.DAY_OF_MONTH) + "/" + (calendar.get(Calendar.MONTH) + 1)
-                    + "/" + calendar.get(Calendar.YEAR) + " " + calendar.get(Calendar.HOUR_OF_DAY)
-                    + ":" + calendar.get(Calendar.MINUTE);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+            String time = dateFormat.format(calendar.getTime());
             String content = "";
             int indexOfEndLine = note.getFull_text().indexOf("\n");
             if(indexOfEndLine != -1){

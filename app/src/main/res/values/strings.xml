@@ -79,4 +79,6 @@
     <string name="text_sign_up_now">Haven\'t sign up before? Sign Up Now</string>
     <string name="auto_back_up">Auto back up</string>
     <string name="logout">Logout</string>
+    <string name="password_reset_details">We just need your registered email to send you password reset instructions</string>
+    <string name="send_reset_password">Send reset password</string>
 </resources>

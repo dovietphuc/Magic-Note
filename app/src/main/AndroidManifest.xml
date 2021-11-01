@@ -45,6 +45,19 @@
 
         </receiver>
 
+        <receiver
+            android:name=".sync.DataSyncReceiver"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="phucdv.android.action.SYNC_UP" />
+                <action android:name="phucdv.android.action.SYNC_DOWN" />
+                <action android:name="phucdv.android.action.SYNC" />
+                <action android:name="phucdv.android.action.CANCEL_ALL" />
+            </intent-filter>
+
+        </receiver>
+
         <activity
             android:name=".widget.PinNoteWidgetConfigureActivity"
             android:screenOrientation="portrait"
@@ -97,7 +110,13 @@
             android:exported="true" />
 
         <activity
-            android:name=".authentic.BackUpActivity"
+            android:name=".sync.BackUpActivity"
+            android:screenOrientation="portrait"
+            android:exported="true"
+            android:parentActivityName=".MagicNoteActivity"/>
+
+        <activity
+            android:name=".authentic.ResetPasswordActivity"
             android:screenOrientation="portrait"
             android:exported="true"
             android:parentActivityName=".MagicNoteActivity"/>

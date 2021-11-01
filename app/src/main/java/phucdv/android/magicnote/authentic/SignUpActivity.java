@@ -1,5 +1,6 @@
 package phucdv.android.magicnote.authentic;
 
+import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -17,6 +18,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 import phucdv.android.magicnote.R;
+import phucdv.android.magicnote.sync.DataSyncReceiver;
 
 public class SignUpActivity extends AppCompatActivity {
     private EditText email, password, repeatPassword;
@@ -57,8 +59,11 @@ public class SignUpActivity extends AppCompatActivity {
                                     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
                                     Toast.makeText(SignUpActivity.this, getString(R.string.sign_up_successful), Toast.LENGTH_LONG).show();
+                                    Intent intent = new Intent();
+                                    intent.setAction(DataSyncReceiver.ACTION_SYNC);
+                                    intent.setComponent(new ComponentName(SignUpActivity.this, DataSyncReceiver.class));
+                                    sendBroadcast(intent);
                                     finish();
-                                    startActivity(new Intent(SignUpActivity.this,BackUpActivity.class));
                                 } else {
                                     progressBar.setVisibility(View.GONE);
                                     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);

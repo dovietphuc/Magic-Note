@@ -30,7 +30,7 @@ public interface NoteDao {
     @Query("SELECT * from note WHERE is_deleted = 1 ORDER BY is_pinned DESC, time_last_update DESC")
     public LiveData<List<Note>> getNotesInTrash();
 
-    @Insert (onConflict = OnConflictStrategy.IGNORE)
+    @Insert (onConflict = OnConflictStrategy.REPLACE)
     public Long insert(Note note);
 
     @Query("DELETE FROM note")

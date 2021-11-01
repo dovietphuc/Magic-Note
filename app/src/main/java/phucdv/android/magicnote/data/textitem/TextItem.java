@@ -1,6 +1,7 @@
 package phucdv.android.magicnote.data.textitem;
 
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import phucdv.android.magicnote.data.BaseItem;
@@ -9,8 +10,13 @@ import phucdv.android.magicnote.data.BaseItem;
 public class TextItem extends BaseItem {
     private String content;
 
-    public TextItem(long parent_id, long order_in_parent, String content) {
-        super(order_in_parent, parent_id);
+    @Ignore
+    public TextItem(){
+        super();
+    }
+
+    public TextItem(long parent_id, long order_in_parent, String content, String uid) {
+        super(order_in_parent, parent_id, uid);
         this.content = content;
     }
 

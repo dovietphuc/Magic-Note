@@ -24,7 +24,8 @@
         android:id="@+id/action_share"
         android:title="@string/share"
         android:icon="@drawable/ic_baseline_share_24"
-        app:showAsAction="never"/>
+        app:showAsAction="never"
+        android:visible="false"/>
 
     <item
         android:id="@+id/action_pin"

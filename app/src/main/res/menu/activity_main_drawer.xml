@@ -17,8 +17,8 @@
             android:icon="@drawable/ic_baseline_delete_24"
             android:title="@string/recycle_bin" />
         <item
-            android:id="@+id/nav_backUpActivity"
-            android:icon="@drawable/ic_baseline_backup_24"
-            android:title="@string/back_up" />
+            android:id="@+id/nav_loginActivity"
+            android:icon="@drawable/ic_baseline_account_circle_24"
+            android:title="@string/login" />
     </group>
 </menu>

@@ -42,6 +42,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.phucdvb.drawer.DrawerActivity;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -110,20 +111,16 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener, 
                     mNote = note;
                     mViewModel.setCurrentColor(note.getColor());
 
-                    mTxtTimeCreate.setVisibility(View.VISIBLE);
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy kk:mm");
 
+                    mTxtTimeCreate.setVisibility(View.VISIBLE);
                     Calendar calendar = note.getTime_create();
-                    String time = calendar.get(Calendar.DAY_OF_MONTH) + "/" + (calendar.get(Calendar.MONTH) + 1)
-                            + "/" + calendar.get(Calendar.YEAR) + " " + calendar.get(Calendar.HOUR_OF_DAY)
-                            + ":" + calendar.get(Calendar.MINUTE);
-                    calendar = note.getTime_last_update();
+                    String time = dateFormat.format(calendar.getTime());
                     mTxtTimeCreate.setText(getString(R.string.time_created, time));
 
                     mTxtTimeUpdate.setVisibility(View.VISIBLE);
                     calendar = note.getTime_last_update();
-                    time = calendar.get(Calendar.DAY_OF_MONTH) + "/" + (calendar.get(Calendar.MONTH) + 1)
-                            + "/" + calendar.get(Calendar.YEAR) + " " + calendar.get(Calendar.HOUR_OF_DAY)
-                            + ":" + calendar.get(Calendar.MINUTE);
+                    time = dateFormat.format(calendar.getTime());
                     mTxtTimeUpdate.setText(getString(R.string.last_modify, time));
 
                     mViewModel.setIsPinned(note.isIs_pinned());

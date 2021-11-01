@@ -8,6 +8,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.SortedList;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -194,10 +197,13 @@ public class EditNoteViewModel extends AndroidViewModel {
         ArrayList<Label> labels = new ArrayList<>();
         str = str.replaceAll("[^#|ء-يA-Za-z0-9_-]", " ");
         String[] split = str.trim().split(" ");
+        final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         for(String s : split){
             if(s.length() > 1 && s.contains("#")){
                 s = s.substring(s.indexOf("#"));
-                labels.add(new Label(s.substring(1)));
+                labels.add(new Label(s.substring(1),
+                        firebaseUser != null ? firebaseUser.getUid() : null));
             }
         }
         return labels;

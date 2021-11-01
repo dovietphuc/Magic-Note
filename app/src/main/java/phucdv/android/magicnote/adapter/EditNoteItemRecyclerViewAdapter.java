@@ -26,6 +26,8 @@ import androidx.recyclerview.widget.SortedList;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.phucdvb.drawer.DrawerActivity;
 
 import org.jetbrains.annotations.NotNull;
@@ -122,27 +124,45 @@ public class EditNoteItemRecyclerViewAdapter extends RecyclerView.Adapter<Recycl
     }
 
     public void addCheckItem(String content, boolean isChecked){
-        addItem(new CheckboxItem(Constants.UNKNOW_PARENT_ID, 0, isChecked, content));
+        final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+        addItem(new CheckboxItem(Constants.UNKNOW_PARENT_ID, 0, isChecked, content,
+                firebaseUser != null ? firebaseUser.getUid() : null));
     }
 
     public void addCheckItem(String content, boolean isChecked, int position){
-        addItem(new CheckboxItem(Constants.UNKNOW_PARENT_ID, 0, isChecked, content), position);
+        final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+        addItem(new CheckboxItem(Constants.UNKNOW_PARENT_ID, 0, isChecked, content,
+                firebaseUser != null ? firebaseUser.getUid() : null), position);
     }
 
     public void addTextItem(String content){
-        addItem(new TextItem(Constants.UNKNOW_PARENT_ID, 0, content));
+        final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+        addItem(new TextItem(Constants.UNKNOW_PARENT_ID, 0, content,
+                firebaseUser != null ? firebaseUser.getUid() : null));
     }
 
     public void addTextItem(String content, int position){
-        addItem(new TextItem(Constants.UNKNOW_PARENT_ID, 0, content), position);
+        final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+        addItem(new TextItem(Constants.UNKNOW_PARENT_ID, 0, content,
+                firebaseUser != null ? firebaseUser.getUid() : null), position);
     }
 
     public void addImageItem(String path){
-        addItem(new ImageItem(Constants.UNKNOW_PARENT_ID, 0, path));
+        final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+        addItem(new ImageItem(Constants.UNKNOW_PARENT_ID, 0, path,
+                firebaseUser != null ? firebaseUser.getUid() : null));
     }
 
     public void addImageItem(String path, int position){
-        addItem(new ImageItem(Constants.UNKNOW_PARENT_ID, 0, path), position);
+        final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+        addItem(new ImageItem(Constants.UNKNOW_PARENT_ID, 0, path,
+                firebaseUser != null ? firebaseUser.getUid() : null), position);
     }
 
     public void addItem(BaseItem item){

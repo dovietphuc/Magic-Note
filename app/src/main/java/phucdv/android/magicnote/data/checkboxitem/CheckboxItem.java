@@ -1,6 +1,7 @@
 package phucdv.android.magicnote.data.checkboxitem;
 
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import phucdv.android.magicnote.data.BaseItem;
@@ -10,10 +11,15 @@ public class CheckboxItem extends BaseItem {
     private boolean is_checked;
     private String content;
 
-    public CheckboxItem(long parent_id, long order_in_parent, boolean is_checked, String content) {
-        super(order_in_parent, parent_id);
+    public CheckboxItem(long parent_id, long order_in_parent, boolean is_checked, String content, String uid) {
+        super(order_in_parent, parent_id, uid);
         this.is_checked = is_checked;
         this.content = content;
+    }
+
+    @Ignore
+    public CheckboxItem(){
+        super();
     }
 
     public boolean isIs_checked() {
