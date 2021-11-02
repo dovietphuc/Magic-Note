@@ -14,7 +14,6 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -25,7 +24,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -72,6 +70,7 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener, 
     protected RecyclerView mRecyclerView;
     protected TextView mTxtTimeCreate;
     protected TextView mTxtTimeUpdate;
+    protected TextView mTxtOwner;
     protected EditNoteItemRecyclerViewAdapter mAdapter;
     protected EditNoteViewModel mViewModel;
     protected ShareComponents mShareComponents;
@@ -123,6 +122,11 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener, 
                     time = dateFormat.format(calendar.getTime());
                     mTxtTimeUpdate.setText(getString(R.string.last_modify, time));
 
+                    if(note.getUser_name() != null){
+                        mTxtOwner.setText(getString(R.string.creator, note.getUser_name()));
+                        mTxtOwner.setVisibility(View.VISIBLE);
+                    }
+
                     mViewModel.setIsPinned(note.isIs_pinned());
                     mViewModel.setIsArchive(note.isIs_archive());
                     mViewModel.setIsTrash(note.isIs_deleted());
@@ -166,6 +170,7 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener, 
 
         mTxtTimeCreate = view.findViewById(R.id.tvTimeCreate);
         mTxtTimeUpdate = view.findViewById(R.id.tvTimeUpdate);
+        mTxtOwner = view.findViewById(R.id.tvOwner);
 
         mRecyclerView = view.findViewById(R.id.edit_list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));

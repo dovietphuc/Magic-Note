@@ -7,6 +7,8 @@ import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -14,8 +16,14 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import phucdv.android.magicnote.data.Converters;
 import phucdv.android.magicnote.data.NoteRoomDatabase;
@@ -31,6 +39,7 @@ import phucdv.android.magicnote.data.noteitem.Note;
 import phucdv.android.magicnote.data.noteitem.NoteDao;
 import phucdv.android.magicnote.data.textitem.TextItem;
 import phucdv.android.magicnote.data.textitem.TextItemDao;
+import phucdv.android.magicnote.util.FileHelper;
 
 public class AutoSyncWorker extends Worker {
     public static final String AUTO_SYNC_WORKER_NAME = "magic_note.auto_sync_worker";
@@ -66,12 +75,12 @@ public class AutoSyncWorker extends Worker {
         DatabaseReference userRef = firebaseDatabase.getReference(user.getUid());
         userRef.removeValue();
 
-        backupNote(userRef, noteRoomDatabase);
-        backupTextItem(userRef, noteRoomDatabase);
-        backupCheckbox(userRef, noteRoomDatabase);
-        backupImageItem(userRef, noteRoomDatabase);
-        backupLabel(userRef, noteRoomDatabase);
-        backupNoteLabel(userRef, noteRoomDatabase);
+        BackUpWorker.backupNote(userRef, noteRoomDatabase);
+        BackUpWorker.backupTextItem(userRef, noteRoomDatabase);
+        BackUpWorker.backupCheckbox(userRef, noteRoomDatabase);
+        BackUpWorker.backupImageItem(userRef, noteRoomDatabase);
+        BackUpWorker.backupLabel(userRef, noteRoomDatabase);
+        BackUpWorker.backupNoteLabel(userRef, noteRoomDatabase);
     }
 
     public void restoreNote(FirebaseDatabase firebaseDatabase, FirebaseUser user){
@@ -83,20 +92,39 @@ public class AutoSyncWorker extends Worker {
                 NoteDao noteDao = db.noteDao();
                 for(DataSnapshot child : snapshot.getChildren()){
                     BackUpNoteItem backUpNote = child.getValue(BackUpNoteItem.class);
-                    Cursor cursor = db.query("SELECT time_last_update FROM note WHERE id=" + backUpNote.getId(), null);
+                    Cursor cursor = db.query("SELECT * FROM note WHERE id=" + backUpNote.getId(), null);
                     if(cursor.moveToFirst()){
-                        long lastUpdate = cursor.getLong(0);
-                        if(lastUpdate == backUpNote.getTime_last_update()){
+                        BackUpNoteItem note = new BackUpNoteItem(
+                                cursor.getString(cursor.getColumnIndex("title")),
+                                cursor.getLong(cursor.getColumnIndex("time_create")),
+                                cursor.getLong(cursor.getColumnIndex("time_last_update")),
+                                cursor.getInt(cursor.getColumnIndex("is_archive")) == 1,
+                                cursor.getInt(cursor.getColumnIndex("is_deleted")) == 1,
+                                cursor.getLong(cursor.getColumnIndex("order_in_parent")),
+                                cursor.getInt(cursor.getColumnIndex("is_pinned")) == 1,
+                                cursor.getInt(cursor.getColumnIndex("color")),
+                                cursor.getInt(cursor.getColumnIndex("has_checkbox")) == 1,
+                                cursor.getInt(cursor.getColumnIndex("has_image")) == 1,
+                                cursor.getString(cursor.getColumnIndex("full_text")),
+                                cursor.getString(cursor.getColumnIndex("uid")),
+                                cursor.getString(cursor.getColumnIndex("user_name")),
+                                cursor.getInt(cursor.getColumnIndex("enable")) == 1);
+                        if(note.getTime_last_update() == backUpNote.getTime_last_update()
+                            && note.getColor() == backUpNote.getColor()
+                            && note.isIs_pinned() == backUpNote.isIs_pinned()
+                            && note.isIs_archive() == backUpNote.isIs_archive()
+                            && note.isIs_deleted() == backUpNote.isIs_deleted()){
                             continue;
                         }
                     }
                     Note note = new Note(backUpNote.getTitle(), Converters.datestampToCalendar(backUpNote.getTime_create()),
                             Converters.datestampToCalendar(backUpNote.getTime_last_update()), backUpNote.isIs_archive(), backUpNote.isIs_deleted(),
                             backUpNote.getOrder_in_parent(), backUpNote.isIs_pinned(), backUpNote.getColor(),
-                            backUpNote.isHas_checkbox(), backUpNote.isHas_image(), backUpNote.getFull_text(), backUpNote.getUid());
+                            backUpNote.isHas_checkbox(), backUpNote.isHas_image(), backUpNote.getFull_text(), backUpNote.getUid(), backUpNote.getUser_name(), backUpNote.isEnable());
                     note.setId(backUpNote.getId());
                     noteDao.insert(note);
                 }
+
                 mNumOfChildCpl++;
                 if(mNumOfChildCpl == mNumOfChild){
                     backup(firebaseDatabase, user);
@@ -189,16 +217,38 @@ public class AutoSyncWorker extends Worker {
                         }
                     }
                     dao.insert(item);
-                }
-                mNumOfChildCpl++;
-                if(mNumOfChildCpl == mNumOfChild){
-                    backup(firebaseDatabase, user);
+
+                    tryRestoreImage(firebaseDatabase, user, item, dao);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
+            }
+        });
+    }
+
+    public void tryRestoreImage(FirebaseDatabase firebaseDatabase, FirebaseUser user, ImageItem item, ImageItemDao dao){
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference(user.getUid() + "/" + item.getPath());
+        if(item.getPath().contains("handDrawer")){
+            FileHelper.mkdir(FileHelper.handDrawDir(getApplicationContext()));
+        } else {
+            FileHelper.mkdir(FileHelper.photoDir(getApplicationContext()));
+        }
+        storageRef.getFile(new File(item.getPath())).addOnCompleteListener(new OnCompleteListener<FileDownloadTask.TaskSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<FileDownloadTask.TaskSnapshot> task) {
+                if(task.isSuccessful()){
+                    dao.insert(item);
+                    mNumOfChildCpl++;
+                    if(mNumOfChildCpl == mNumOfChild){
+                        backup(firebaseDatabase, user);
+                    }
+                } else {
+                    tryRestoreImage(firebaseDatabase, user, item, dao);
+                }
             }
         });
     }
@@ -263,113 +313,5 @@ public class AutoSyncWorker extends Worker {
 
             }
         });
-    }
-
-    public void backupNote(DatabaseReference ref,  NoteRoomDatabase db){
-        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-        Cursor cursor = db.query("SELECT * FROM note", null);
-        while (cursor.moveToNext()){
-            BackUpNoteItem note = new BackUpNoteItem(
-                    cursor.getString(cursor.getColumnIndex("title")),
-                    cursor.getLong(cursor.getColumnIndex("time_create")),
-                    cursor.getLong(cursor.getColumnIndex("time_last_update")),
-                    cursor.getInt(cursor.getColumnIndex("is_archive")) == 1,
-                    cursor.getInt(cursor.getColumnIndex("is_deleted")) == 1,
-                    cursor.getLong(cursor.getColumnIndex("order_in_parent")),
-                    cursor.getInt(cursor.getColumnIndex("is_pinned")) == 1,
-                    cursor.getInt(cursor.getColumnIndex("color")),
-                    cursor.getInt(cursor.getColumnIndex("has_checkbox")) == 1,
-                    cursor.getInt(cursor.getColumnIndex("has_image")) == 1,
-                    cursor.getString(cursor.getColumnIndex("full_text")),
-                    firebaseUser.getUid()
-            );
-            note.setId(cursor.getLong(cursor.getColumnIndex("id")));
-
-            ref.child("note/" + note.getId()).setValue(note);
-        }
-    }
-
-    public void backupTextItem(DatabaseReference ref,  NoteRoomDatabase db){
-        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-        Cursor cursor = db.query("SELECT * FROM text_item", null);
-        while (cursor.moveToNext()){
-            TextItem item = new TextItem(
-                    cursor.getLong(cursor.getColumnIndex("parent_id")),
-                    cursor.getLong(cursor.getColumnIndex("order_in_parent")),
-                    cursor.getString(cursor.getColumnIndex("content")),
-                    firebaseUser.getUid()
-            );
-            item.setId(cursor.getLong(cursor.getColumnIndex("id")));
-
-            ref.child("text_item/" + item.getId()).setValue(item);
-        }
-    }
-
-    public void backupCheckbox(DatabaseReference ref,  NoteRoomDatabase db){
-        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-        Cursor cursor = db.query("SELECT * FROM checkbox_item", null);
-        while (cursor.moveToNext()){
-            CheckboxItem item = new CheckboxItem(
-                    cursor.getLong(cursor.getColumnIndex("parent_id")),
-                    cursor.getLong(cursor.getColumnIndex("order_in_parent")),
-                    cursor.getInt(cursor.getColumnIndex("is_checked")) == 1,
-                    cursor.getString(cursor.getColumnIndex("content")),
-                    firebaseUser.getUid()
-            );
-            item.setId(cursor.getLong(cursor.getColumnIndex("id")));
-
-            ref.child("checkbox_item/" + item.getId()).setValue(item);
-        }
-    }
-
-    public void backupImageItem(DatabaseReference ref,  NoteRoomDatabase db){
-        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-        Cursor cursor = db.query("SELECT * FROM image_item", null);
-        while (cursor.moveToNext()){
-            ImageItem item = new ImageItem(
-                    cursor.getLong(cursor.getColumnIndex("order_in_parent")),
-                    cursor.getLong(cursor.getColumnIndex("parent_id")),
-                    cursor.getString(cursor.getColumnIndex("path")),
-                    firebaseUser.getUid()
-            );
-            item.setId(cursor.getLong(cursor.getColumnIndex("id")));
-
-            ref.child("image_item/" + item.getId()).setValue(item);
-        }
-    }
-
-    public void backupLabel(DatabaseReference ref,  NoteRoomDatabase db){
-        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-        Cursor cursor = db.query("SELECT * FROM label", null);
-        while (cursor.moveToNext()){
-            Label item = new Label(
-                    cursor.getString(cursor.getColumnIndex("name")),
-                    firebaseUser.getUid()
-            );
-            item.setId(cursor.getLong(cursor.getColumnIndex("id")));
-
-            ref.child("label/" + item.getId()).setValue(item);
-        }
-    }
-
-    public void backupNoteLabel(DatabaseReference ref,  NoteRoomDatabase db){
-        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-        Cursor cursor = db.query("SELECT * FROM note_label", null);
-        while (cursor.moveToNext()){
-            NoteLabel item = new NoteLabel(
-                    cursor.getLong(cursor.getColumnIndex("note_id")),
-                    cursor.getLong(cursor.getColumnIndex("label_id")),
-                    firebaseUser.getUid()
-            );
-            item.setId(cursor.getLong(cursor.getColumnIndex("id")));
-
-            ref.child("note_label/" + item.getId()).setValue(item);
-        }
     }
 }

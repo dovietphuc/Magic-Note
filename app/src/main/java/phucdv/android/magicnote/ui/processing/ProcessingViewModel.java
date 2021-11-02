@@ -19,6 +19,4 @@ public class ProcessingViewModel extends BaseViewModel {
     public void initNotes() {
         mNotes = mNoteRepository.getNotesInProcessing();
     }
-
-    public LiveData<List<Note>> getProcessingNotes() { return getListNotes(); }
 }

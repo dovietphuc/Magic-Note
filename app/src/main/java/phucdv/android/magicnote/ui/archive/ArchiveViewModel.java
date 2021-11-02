@@ -18,6 +18,4 @@ public class ArchiveViewModel extends BaseViewModel {
     public void initNotes() {
         mNotes = mNoteRepository.getNotesInArchive();
     }
-
-    public LiveData<List<Note>> getNotesInArchive() { return getListNotes(); }
 }

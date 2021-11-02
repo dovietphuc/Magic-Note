@@ -31,9 +31,9 @@ public class SignUpActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sign_up);
 
         email = findViewById(R.id.sign_up_email);
-        password = findViewById(R.id.sign_up_password);
-        repeatPassword = findViewById(R.id.sign_up_repeat_password);
-        progressBar = findViewById(R.id.signup_progress_bar);
+        password = findViewById(R.id.new_password);
+        repeatPassword = findViewById(R.id.repeat_new_password);
+        progressBar = findViewById(R.id.change_pwd_progress_bar);
         firebaseAuth = FirebaseAuth.getInstance();
     }
 
@@ -60,7 +60,7 @@ public class SignUpActivity extends AppCompatActivity {
 
                                     Toast.makeText(SignUpActivity.this, getString(R.string.sign_up_successful), Toast.LENGTH_LONG).show();
                                     Intent intent = new Intent();
-                                    intent.setAction(DataSyncReceiver.ACTION_SYNC);
+                                    intent.setAction(DataSyncReceiver.ACTION_SYNC_UP);
                                     intent.setComponent(new ComponentName(SignUpActivity.this, DataSyncReceiver.class));
                                     sendBroadcast(intent);
                                     finish();
@@ -69,7 +69,7 @@ public class SignUpActivity extends AppCompatActivity {
                                     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
                                     Toast.makeText(SignUpActivity.this,
-                                            task.getException().getMessage(),
+                                            task.getException().getLocalizedMessage(),
                                             Toast.LENGTH_LONG).show();
                                 }
                             } catch (Exception e) {

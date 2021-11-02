@@ -47,7 +47,7 @@ public class ProcessingFragment extends BaseListNoteFragment {
         mViewModel = new ViewModelProvider(this).get(ProcessingViewModel.class);
         mViewModel.init(this);
 
-        mViewModel.getProcessingNotes().observe(getViewLifecycleOwner(), new Observer<List<Note>>() {
+        mViewModel.getListNotes().observe(getViewLifecycleOwner(), new Observer<List<Note>>() {
             @Override
             public void onChanged(List<Note> notes) {
                 mAdapter.setValues(notes);
@@ -70,10 +70,10 @@ public class ProcessingFragment extends BaseListNoteFragment {
     }
 
     public void onSwipeLeft(RecyclerView.ViewHolder viewHolder){
-        if(viewHolder.getLayoutPosition() >= mViewModel.getProcessingNotes().getValue().size()){
+        if(viewHolder.getLayoutPosition() >= mViewModel.getListNotes().getValue().size()){
             return;
         }
-        Note note = mViewModel.getProcessingNotes().getValue()
+        Note note = mViewModel.getListNotes().getValue()
                 .get(viewHolder.getLayoutPosition());
         mViewModel.moveToArchive(note);
         Snackbar.make(getView(), getString(R.string.move_to_archive), Snackbar.LENGTH_LONG)
@@ -95,7 +95,7 @@ public class ProcessingFragment extends BaseListNoteFragment {
 
     @Override
     public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-        if(viewHolder.getLayoutPosition() >= mViewModel.getProcessingNotes().getValue().size()){
+        if(viewHolder.getLayoutPosition() >= mViewModel.getListNotes().getValue().size()){
             return;
         }
         new RecyclerViewSwipeDecorator.Builder(getContext(), c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
@@ -228,7 +228,7 @@ public class ProcessingFragment extends BaseListNoteFragment {
         return new String[]{
                 getString(R.string.change_color),
                 note.isIs_pinned() ? getString(R.string.unpin) : getString(R.string.pin)
-                , getString(R.string.share)
+//                , getString(R.string.share)
                 , getString(R.string.archive)
                 , getString(R.string.recycle_bin)
                 , getString(R.string.completely_delete)};
@@ -255,15 +255,15 @@ public class ProcessingFragment extends BaseListNoteFragment {
             case 1:
                 mViewModel.pinOrUnpin(note);
                 break;
+//            case 2:
+//                break;
             case 2:
-                break;
-            case 3:
                 mViewModel.moveToArchive(note);
                 break;
-            case 4:
+            case 3:
                 mViewModel.moveToTrash(note);
                 break;
-            case 5:
+            case 4:
                 AlertDialog.Builder builder = new MaterialAlertDialogBuilder(getContext())
                         .setTitle(R.string.warning)
                         .setMessage(R.string.warning_delete)

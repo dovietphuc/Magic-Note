@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Drawer</string>
     <string name="warning">Warning</string>
     <string name="confirm_cancel">Are you sure to cancel hand drawing?</string>
     <string name="confirm">Confirm</string>

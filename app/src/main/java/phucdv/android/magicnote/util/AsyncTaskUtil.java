@@ -277,6 +277,29 @@ public class AsyncTaskUtil {
         }
     }
 
+    public static class updateNoteAsyncTaskWithResponse extends AsyncTask<Note, Void, Void> {
+
+        private NoteDao mAsyncTaskDao;
+        private AsyncResponse mResponse;
+
+        public updateNoteAsyncTaskWithResponse(NoteDao dao, AsyncResponse response) {
+            mAsyncTaskDao = dao;
+            mResponse = response;
+        }
+
+        @Override
+        protected Void doInBackground(final Note... params) {
+            mAsyncTaskDao.update(params[0]);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            super.onPostExecute(unused);
+            mResponse.processFinish(unused);
+        }
+    }
+
     public static class updateListNoteAsyncTask extends AsyncTask<List<Note>, Void, Void> {
 
         private NoteDao mAsyncTaskDao;
@@ -543,7 +566,7 @@ public class AsyncTaskUtil {
 
         @Override
         protected Void doInBackground(Label... labels) {
-            mAsyncTaskDao.delete(labels[0]);
+            mAsyncTaskDao.delete(labels[0].getId());
             return null;
         }
     }
@@ -607,22 +630,7 @@ public class AsyncTaskUtil {
 
         @Override
         protected Void doInBackground(NoteLabel... noteLabels) {
-            mNoteLabelDao.delete(noteLabels[0]);
-            return null;
-        }
-    }
-
-    public static class deleteListLabelNoteAsyncTask extends AsyncTask<List<NoteLabel>, Void, Void>{
-
-        NoteLabelDao mNoteLabelDao;
-
-        public deleteListLabelNoteAsyncTask(NoteLabelDao noteLabelDao){
-            mNoteLabelDao = noteLabelDao;
-        }
-
-        @Override
-        protected Void doInBackground(List<NoteLabel>... noteLabels) {
-            mNoteLabelDao.deleteAll(noteLabels[0]);
+            mNoteLabelDao.delete(noteLabels[0].getLabel_id());
             return null;
         }
     }
@@ -665,7 +673,7 @@ public class AsyncTaskUtil {
             if(label_id > 0){
                 final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
                 FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-                mNoteLabelDao.insert(new NoteLabel(mNoteId, label_id, firebaseUser != null ? firebaseUser.getUid() : null));
+                mNoteLabelDao.insert(new NoteLabel(mNoteId, label_id, firebaseUser != null ? firebaseUser.getUid() : null, true));
             } else {
                 mConflict = mLabel;
             }
@@ -681,7 +689,7 @@ public class AsyncTaskUtil {
                     public void onChanged(Label label) {
                         final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
                         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-                        new insertLabelNoteAsyncTask(mNoteLabelDao, null).execute(new NoteLabel(mNoteId, label.getId(), firebaseUser != null ? firebaseUser.getUid() : null));
+                        new insertLabelNoteAsyncTask(mNoteLabelDao, null).execute(new NoteLabel(mNoteId, label.getId(), firebaseUser != null ? firebaseUser.getUid() : null, true));
                     }
                 });
             }
@@ -714,7 +722,7 @@ public class AsyncTaskUtil {
                 if (label_id > 0) {
                     final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
                     FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-                    mNoteLabelDao.insert(new NoteLabel(mNoteId, label_id, firebaseUser != null ? firebaseUser.getUid() : null));
+                    mNoteLabelDao.insert(new NoteLabel(mNoteId, label_id, firebaseUser != null ? firebaseUser.getUid() : null, true));
                 } else {
                     mConflicts.add(label);
                 }
@@ -740,7 +748,7 @@ public class AsyncTaskUtil {
                                     new deleteLabelIfNeedAsyncTask(mNoteLabelDao).execute();
                                 }
                             }
-                        }).execute(new NoteLabel(mNoteId, label.getId(), firebaseUser != null ? firebaseUser.getUid() : null));
+                        }).execute(new NoteLabel(mNoteId, label.getId(), firebaseUser != null ? firebaseUser.getUid() : null, true));
                     }
                 });
             }

@@ -11,8 +11,8 @@ public class CheckboxItem extends BaseItem {
     private boolean is_checked;
     private String content;
 
-    public CheckboxItem(long parent_id, long order_in_parent, boolean is_checked, String content, String uid) {
-        super(order_in_parent, parent_id, uid);
+    public CheckboxItem(long parent_id, long order_in_parent, boolean is_checked, String content, String uid, boolean enable) {
+        super(order_in_parent, parent_id, uid, enable);
         this.is_checked = is_checked;
         this.content = content;
     }

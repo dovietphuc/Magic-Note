@@ -66,7 +66,7 @@ public class MagicNoteActivity extends AppCompatActivity implements ShareCompone
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_processing, R.id.nav_archive, R.id.nav_recycle_bin, R.id.nav_loginActivity)
+                R.id.nav_processing, R.id.nav_archive, R.id.nav_recycle_bin, R.id.nav_updatePasswordActivity, R.id.nav_loginActivity)
                 .setDrawerLayout(mDrawer)
                 .build();
         mNavController = Navigation.findNavController(this, R.id.nav_host_fragment);
@@ -89,6 +89,15 @@ public class MagicNoteActivity extends AppCompatActivity implements ShareCompone
                     intent.getLongExtra(Constants.ARG_PARENT_ID, Constants.UNKNOW_PARENT_ID));
             navigate(R.id.action_global_editNoteFragment, bundle);
         }
+
+//        final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+//        mFirebaseUser = firebaseAuth.getCurrentUser();
+//        if(mFirebaseUser != null) {
+//            Intent syncIntent = new Intent();
+//            syncIntent.setAction(DataSyncReceiver.ACTION_SYNC_DOWN);
+//            syncIntent.setComponent(new ComponentName(this, DataSyncReceiver.class));
+//            sendBroadcast(syncIntent);
+//        }
     }
 
     @Override
@@ -98,44 +107,38 @@ public class MagicNoteActivity extends AppCompatActivity implements ShareCompone
         mFirebaseUser = firebaseAuth.getCurrentUser();
         TextView txtUser = mNavigationView.getHeaderView(0).findViewById(R.id.txt_user);
         MenuItem itemLogin = mNavigationView.getMenu().findItem(R.id.nav_loginActivity);
+        MenuItem itemChangePwd = mNavigationView.getMenu().findItem(R.id.nav_updatePasswordActivity);
+
         if (mFirebaseUser == null){
             txtUser.setText(R.string.nav_header_subtitle);
             itemLogin.setTitle(R.string.login);
             itemLogin.setIcon(R.drawable.ic_baseline_account_circle_24);
+            itemChangePwd.setVisible(false);
         }else {
             txtUser.setText(mFirebaseUser.getEmail());
             itemLogin.setTitle(R.string.logout);
             itemLogin.setIcon(R.drawable.ic_baseline_exit_to_app_24);
-            Intent intent = new Intent();
-            intent.setAction(DataSyncReceiver.ACTION_SYNC);
-            intent.setComponent(new ComponentName(this, DataSyncReceiver.class));
-            sendBroadcast(intent);
+            itemChangePwd.setVisible(true);
         }
     }
 
     @Override
     protected void onPause() {
-        final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-        mFirebaseUser = firebaseAuth.getCurrentUser();
-        Intent intent = new Intent();
-        if(mFirebaseUser != null) {
-            intent.setAction(DataSyncReceiver.ACTION_SYNC_UP);
-        }
-        intent.setComponent(new ComponentName(this, DataSyncReceiver.class));
-        sendBroadcast(intent);
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
-        final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-        mFirebaseUser = firebaseAuth.getCurrentUser();
-        Intent intent = new Intent();
-        if(mFirebaseUser == null) {
-            intent.setAction(DataSyncReceiver.ACTION_CANCEL_ALL);
-        }
-        intent.setComponent(new ComponentName(this, DataSyncReceiver.class));
-        sendBroadcast(intent);
+//        final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+//        mFirebaseUser = firebaseAuth.getCurrentUser();
+//        Intent intent = new Intent();
+//        if(mFirebaseUser == null) {
+//            intent.setAction(DataSyncReceiver.ACTION_CANCEL_ALL);
+//        } else {
+//            intent.setAction(DataSyncReceiver.ACTION_SYNC_UP);
+//        }
+//        intent.setComponent(new ComponentName(this, DataSyncReceiver.class));
+//        sendBroadcast(intent);
         super.onDestroy();
     }
 

@@ -16,9 +16,17 @@
             android:id="@+id/nav_recycle_bin"
             android:icon="@drawable/ic_baseline_delete_24"
             android:title="@string/recycle_bin" />
-        <item
-            android:id="@+id/nav_loginActivity"
-            android:icon="@drawable/ic_baseline_account_circle_24"
-            android:title="@string/login" />
+
     </group>
+    <item android:title="@string/authentic">
+        <menu>
+            <item android:id="@+id/nav_updatePasswordActivity"
+                android:icon="@drawable/ic_baseline_edit_24"
+                android:title="@string/change_pwd"/>
+            <item
+                android:id="@+id/nav_loginActivity"
+                android:icon="@drawable/ic_baseline_account_circle_24"
+                android:title="@string/login" />
+        </menu>
+    </item>
 </menu>

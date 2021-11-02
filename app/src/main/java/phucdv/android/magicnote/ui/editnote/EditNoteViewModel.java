@@ -165,6 +165,10 @@ public class EditNoteViewModel extends AndroidViewModel {
         mNoteRepository.updateNote(item);
     }
 
+    public void updateNote(Note item, AsyncResponse response){
+        mNoteRepository.updateNote(item, response);
+    }
+
     public void updateListNote(List<Note> items){
         mNoteRepository.updateListNote(items);
     }
@@ -203,7 +207,7 @@ public class EditNoteViewModel extends AndroidViewModel {
             if(s.length() > 1 && s.contains("#")){
                 s = s.substring(s.indexOf("#"));
                 labels.add(new Label(s.substring(1),
-                        firebaseUser != null ? firebaseUser.getUid() : null));
+                        firebaseUser != null ? firebaseUser.getUid() : null, true));
             }
         }
         return labels;
@@ -265,12 +269,19 @@ public class EditNoteViewModel extends AndroidViewModel {
             // Bkav PhucDVb: insert/update note and child item
             if (note == null) {
                 toInsertNote.setTime_create(toInsertNote.getTime_last_update());
+                final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if(user != null) {
+                    toInsertNote.setUid(user.getUid());
+                    toInsertNote.setUser_name(user.getEmail());
+                }
                 insertNote(toInsertNote, new AsyncResponse() {
                     @Override
                     public void processFinish(Object output) {
                         initBaseItemRepository((Long) output);
                         for (int i = 0; i < listBase.size(); i++) {
                             BaseItem item = listBase.get(i);
+                            item.setTime_stamp_update(Calendar.getInstance().getTimeInMillis());
                             item.setParent_id((Long) output);
                             if (item instanceof TextItem) {
                                 insertTextItem((TextItem) item);
@@ -287,39 +298,44 @@ public class EditNoteViewModel extends AndroidViewModel {
             } else {
                 mLabelRepository.insertAllForNote((LifecycleOwner) adapter.getContext(), mParentId.getValue(), labels);
 
-                updateNote(toInsertNote);
-                initBaseItemRepository(note.getId());
-                for (BaseItem item : hashMap.keySet()) {
-                    int state = hashMap.get(item);
-                    item.setParent_id(note.getId());
-                    if (state == EditNoteItemRecyclerViewAdapter.STATE_NONE) {
-                        continue;
-                    } else if (state == EditNoteItemRecyclerViewAdapter.STATE_ADD) {
-                        if (item instanceof TextItem) {
-                            insertTextItem((TextItem) item);
-                        } else if (item instanceof CheckboxItem) {
-                            insertCheckboxItem((CheckboxItem) item);
-                        } else if(item instanceof ImageItem){
-                            insertImageItem((ImageItem) item);
-                        }
-                    } else if (state == EditNoteItemRecyclerViewAdapter.STATE_MODIFY) {
-                        if (item instanceof TextItem) {
-                            updateTextItem((TextItem) item);
-                        } else if (item instanceof CheckboxItem) {
-                            updateCheckboxItem((CheckboxItem) item);
-                        } else if (item instanceof ImageItem){
-                            updateImageItem((ImageItem) item);
-                        }
-                    } else if (state == EditNoteItemRecyclerViewAdapter.STATE_DELETE) {
-                        if (item instanceof TextItem) {
-                            deleteTextItemById(item.getId());
-                        } else if (item instanceof CheckboxItem) {
-                            deleteCheckboxItemById(item.getId());
-                        } else if(item instanceof ImageItem){
-                            deleteImageItemById(item.getId());
+                updateNote(toInsertNote, new AsyncResponse() {
+                    @Override
+                    public void processFinish(Object output) {
+                        initBaseItemRepository(note.getId());
+                        for (BaseItem item : hashMap.keySet()) {
+                            int state = hashMap.get(item);
+                            item.setParent_id(note.getId());
+                            item.setTime_stamp_update(Calendar.getInstance().getTimeInMillis());
+                            if (state == EditNoteItemRecyclerViewAdapter.STATE_NONE) {
+                                continue;
+                            } else if (state == EditNoteItemRecyclerViewAdapter.STATE_ADD) {
+                                if (item instanceof TextItem) {
+                                    insertTextItem((TextItem) item);
+                                } else if (item instanceof CheckboxItem) {
+                                    insertCheckboxItem((CheckboxItem) item);
+                                } else if(item instanceof ImageItem){
+                                    insertImageItem((ImageItem) item);
+                                }
+                            } else if (state == EditNoteItemRecyclerViewAdapter.STATE_MODIFY) {
+                                if (item instanceof TextItem) {
+                                    updateTextItem((TextItem) item);
+                                } else if (item instanceof CheckboxItem) {
+                                    updateCheckboxItem((CheckboxItem) item);
+                                } else if (item instanceof ImageItem){
+                                    updateImageItem((ImageItem) item);
+                                }
+                            } else if (state == EditNoteItemRecyclerViewAdapter.STATE_DELETE) {
+                                if (item instanceof TextItem) {
+                                    deleteTextItemById(item.getId());
+                                } else if (item instanceof CheckboxItem) {
+                                    deleteCheckboxItemById(item.getId());
+                                } else if(item instanceof ImageItem){
+                                    deleteImageItemById(item.getId());
+                                }
+                            }
                         }
                     }
-                }
+                });
             }
         }
     }

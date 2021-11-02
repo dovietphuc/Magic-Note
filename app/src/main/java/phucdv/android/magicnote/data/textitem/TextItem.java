@@ -15,8 +15,8 @@ public class TextItem extends BaseItem {
         super();
     }
 
-    public TextItem(long parent_id, long order_in_parent, String content, String uid) {
-        super(order_in_parent, parent_id, uid);
+    public TextItem(long parent_id, long order_in_parent, String content, String uid, boolean enable) {
+        super(order_in_parent, parent_id, uid, enable);
         this.content = content;
     }
 

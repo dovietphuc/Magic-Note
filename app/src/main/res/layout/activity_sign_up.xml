@@ -70,7 +70,7 @@
             app:passwordToggleEnabled="true">
 
             <EditText
-                android:id="@+id/sign_up_password"
+                android:id="@+id/new_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/password"
@@ -91,7 +91,7 @@
             app:passwordToggleEnabled="true">
 
             <EditText
-                android:id="@+id/sign_up_repeat_password"
+                android:id="@+id/repeat_new_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/repeat_password"
@@ -127,9 +127,9 @@
     </LinearLayout>
 
     <ProgressBar
-        android:id="@+id/signup_progress_bar"
-        android:layout_width="130dp"
-        android:layout_height="89dp"
+        android:id="@+id/change_pwd_progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

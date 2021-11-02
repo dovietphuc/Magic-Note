@@ -35,10 +35,6 @@ public class NoteLabelRepository {
         new AsyncTaskUtil.deleteLabelNoteAsyncTask(mNoteLabelDao).execute(noteLabel);
     }
 
-    public void deleteAll(List<NoteLabel> noteLabels){
-        new AsyncTaskUtil.deleteListLabelNoteAsyncTask(mNoteLabelDao).execute(noteLabels);
-    }
-
     public void deleteForNote(long note_id){
         new AsyncTaskUtil.deleteLabelNoteForNoteAsyncTask(mNoteLabelDao).execute(note_id);
     }

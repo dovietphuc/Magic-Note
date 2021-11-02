@@ -20,9 +20,6 @@ public class RecycleBinViewModel extends BaseViewModel {
         mNotes = mNoteRepository.getNotesInTrash();
     }
 
-    public LiveData<List<Note>> getNotesInTrash() { return getListNotes(); }
-
-
     public void clearTrash(){
         mNoteRepository.deleteListNote(mNotes.getValue());
     }

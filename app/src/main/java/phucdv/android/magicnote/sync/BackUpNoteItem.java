@@ -16,10 +16,12 @@ public class BackUpNoteItem {
     private boolean has_image;
     private String full_text;
     private String uid;
+    private String user_name;
+    private boolean enable;
 
     public BackUpNoteItem(String title, long time_create, long time_last_update, boolean is_archive,
                 boolean is_deleted, long order_in_parent, boolean is_pinned, int color,
-                boolean has_checkbox, boolean has_image, String full_text, String uid) {
+                boolean has_checkbox, boolean has_image, String full_text, String uid, String user_name, boolean enable) {
         this.title = title;
         this.time_create = time_create;
         this.time_last_update = time_last_update;
@@ -32,6 +34,8 @@ public class BackUpNoteItem {
         this.has_image = has_image;
         this.full_text = full_text;
         this.uid = uid;
+        this.user_name = user_name;
+        this.enable = enable;
     }
 
     public BackUpNoteItem() {
@@ -47,6 +51,8 @@ public class BackUpNoteItem {
         this.has_image = false;
         this.full_text = "";
         this.uid = null;
+        this.user_name = null;
+        this.enable = true;
     }
 
     public long getId() {
@@ -151,5 +157,21 @@ public class BackUpNoteItem {
 
     public void setUid(String uid) {
         this.uid = uid;
+    }
+
+    public String getUser_name() {
+        return user_name;
+    }
+
+    public void setUser_name(String user_name) {
+        this.user_name = user_name;
+    }
+
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable = enable;
     }
 }

@@ -14,21 +14,21 @@ import phucdv.android.magicnote.data.noteitem.Note;
 
 @Dao
 public interface LabelDao {
-    @Query("SELECT * from label")
+    @Query("SELECT * from label WHERE enable = 1")
     public LiveData<List<Label>> getAllLabels();
 
-    @Query("SELECT * from label WHERE id = :id")
+    @Query("SELECT * from label WHERE enable = 1 AND id = :id")
     public LiveData<Label> getLabelById(long id);
 
-    @Query("SELECT * from label WHERE name like :name")
+    @Query("SELECT * from label WHERE enable = 1 AND name like :name")
     public LiveData<Label> getLabelByName(String name);
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     public Long insert(Label label);
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     public Long[] insertAll(List<Label> labels);
 
-    @Delete(entity = Label.class)
-    public void delete(Label label);
+    @Query("UPDATE label SET enable = 0 WHERE id = :labelId")
+    public void delete(long labelId);
 }

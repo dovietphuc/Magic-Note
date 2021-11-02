@@ -15,27 +15,27 @@ import phucdv.android.magicnote.data.noteitem.Note;
 @Dao
 public interface NoteLabelDao {
 
-    @Query("SELECT * FROM note INNER JOIN note_label ON note.id = note_label.note_id WHERE label_id = :labelId")
+    @Query("SELECT * FROM note_label WHERE enable = 1")
+    public LiveData<List<NoteLabel>> getAlls();
+
+    @Query("SELECT * FROM note INNER JOIN note_label ON note.id = note_label.note_id WHERE note.enable = 1 AND note_label.enable = 1 AND label_id = :labelId")
     public LiveData<List<Note>> getNotesByLabelId(long labelId);
 
-    @Query("SELECT * FROM label INNER JOIN note_label ON label.id = note_label.label_id WHERE note_id = :noteId")
+    @Query("SELECT * FROM label INNER JOIN note_label ON label.id = note_label.label_id WHERE label.enable = 1 AND note_label.enable = 1 AND note_id = :noteId")
     public LiveData<List<Label>> getLabelsByNoteId(long noteId);
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     public Long insert(NoteLabel noteLabel);
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     public Long[] insertAll(List<NoteLabel> noteLabels);
 
-    @Delete(entity = NoteLabel.class)
-    public void delete(NoteLabel noteLabel);
+    @Query("UPDATE note_label SET enable = 0 WHERE id = :noteLabelId")
+    public void delete(long noteLabelId);
 
-    @Query("DELETE FROM note_label WHERE note_id = :note_id")
+    @Query("UPDATE note_label SET enable = 0 WHERE note_id = :note_id")
     public void deleteForNote(long note_id);
 
-    @Delete(entity = NoteLabel.class)
-    public void deleteAll(List<NoteLabel> noteLabels);
-
-    @Query("DELETE FROM label WHERE id NOT IN (SELECT label_id FROM note_label)")
+    @Query("UPDATE label SET enable = 0 WHERE id NOT IN (SELECT label_id FROM note_label)")
     public void deleteLabelIfNeed();
 }

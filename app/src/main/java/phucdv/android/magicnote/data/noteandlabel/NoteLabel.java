@@ -16,13 +16,15 @@ public class NoteLabel {
     private long label_id;
     private String uid;
     private long time_stamp_update;
+    private boolean enable;
 
-    public NoteLabel(long note_id, long label_id, String uid) {
+    public NoteLabel(long note_id, long label_id, String uid, boolean enable) {
         this.id = Calendar.getInstance().getTimeInMillis();
         this.note_id = note_id;
         this.label_id = label_id;
         this.uid = uid;
         this.time_stamp_update = Calendar.getInstance().getTimeInMillis();
+        this.enable = enable;
     }
 
     @Ignore
@@ -30,6 +32,15 @@ public class NoteLabel {
         super();
         this.id = Calendar.getInstance().getTimeInMillis();
         this.time_stamp_update = Calendar.getInstance().getTimeInMillis();
+        this.enable = true;
+    }
+
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable = enable;
     }
 
     public long getId() {

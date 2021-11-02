@@ -13,22 +13,26 @@ import phucdv.android.magicnote.data.textitem.TextItem;
 
 @Dao
 public interface CheckboxItemDao {
-    @Query("SELECT * FROM checkbox_item WHERE id = :id")
+
+    @Query("SELECT * FROM checkbox_item WHERE enable = 1")
+    public LiveData<List<CheckboxItem>> getAll();
+
+    @Query("SELECT * FROM checkbox_item WHERE enable = 1 AND id = :id")
     public LiveData<List<CheckboxItem>> getCheckboxItemForId(long id);
 
-    @Query("SELECT * FROM checkbox_item WHERE parent_id = :parentId")
+    @Query("SELECT * FROM checkbox_item WHERE enable = 1 AND parent_id = :parentId")
     public LiveData<List<CheckboxItem>> getCheckboxItemForParentId(long parentId);
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     public Long insert(CheckboxItem checkboxItem);
 
-    @Insert (onConflict = OnConflictStrategy.IGNORE)
+    @Insert (onConflict = OnConflictStrategy.REPLACE)
     public Long[] insertAll(List<CheckboxItem> checkboxItems);
 
-    @Query("DELETE FROM checkbox_item WHERE id = :id")
+    @Query("UPDATE checkbox_item SET enable = 0 WHERE id = :id")
     public void deleteById(long id);
 
-    @Query("DELETE FROM checkbox_item WHERE parent_id = :parentId")
+    @Query("UPDATE checkbox_item SET enable = 0 WHERE parent_id = :parentId")
     public void deleteByParentId(long parentId);
 
     @Update(entity = CheckboxItem.class)

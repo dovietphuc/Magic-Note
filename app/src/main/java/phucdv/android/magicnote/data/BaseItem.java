@@ -16,19 +16,22 @@ public abstract class BaseItem {
     @ColumnInfo(name = "uid")
     private String uid;
     private long time_stamp_update;
+    private boolean enable;
 
-    public BaseItem(long order_in_parent, long parent_id, String uid){
+    public BaseItem(long order_in_parent, long parent_id, String uid, boolean enable){
         this.id = Calendar.getInstance().getTimeInMillis();
         this.order_in_parent = order_in_parent;
         this.parent_id = parent_id;
         this.uid = uid;
         this.time_stamp_update = Calendar.getInstance().getTimeInMillis();
+        this.enable = enable;
     }
 
     @Ignore
     public BaseItem(){
         this.id = Calendar.getInstance().getTimeInMillis();
         this.time_stamp_update = Calendar.getInstance().getTimeInMillis();
+        this.enable = true;
     }
 
     public long getId() {
@@ -65,6 +68,14 @@ public abstract class BaseItem {
 
     public long getTime_stamp_update() {
         return time_stamp_update;
+    }
+
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable = enable;
     }
 
     public void setTime_stamp_update(long time_stamp_update) {

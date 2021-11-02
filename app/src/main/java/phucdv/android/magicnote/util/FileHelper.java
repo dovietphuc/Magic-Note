@@ -55,31 +55,31 @@ public class FileHelper {
     }
 
     public static String photoDir(Context context){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
             return context.getExternalFilesDir(Environment.DIRECTORY_DCIM)
                     + File.separator + "MagicNote"
                     + File.separator + "photo";
-        }
-        else
-        {
-            return Environment.getExternalStorageDirectory().toString()
-                    + File.separator + "MagicNote"
-                    + File.separator + "photo";
-        }
+//        }
+//        else
+//        {
+//            return Environment.getExternalStorageDirectory().toString()
+//                    + File.separator + "MagicNote"
+//                    + File.separator + "photo";
+//        }
     }
 
     public static String handDrawDir(Context context){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
             return context.getExternalFilesDir(Environment.DIRECTORY_DCIM)
                     + File.separator + "MagicNote"
                     + File.separator + "handDrawer";
-        }
-        else
-        {
-            return Environment.getExternalStorageDirectory().toString()
-                    + File.separator + "MagicNote"
-                    + File.separator + "handDrawer";
-        }
+//        }
+//        else
+//        {
+//            return Environment.getExternalStorageDirectory().toString()
+//                    + File.separator + "MagicNote"
+//                    + File.separator + "handDrawer";
+//        }
     }
 
     public static String createFileName(String ext){

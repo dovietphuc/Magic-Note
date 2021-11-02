@@ -1,6 +1,8 @@
 package phucdv.android.magicnote.data;
 
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 
 import phucdv.android.magicnote.data.checkboxitem.CheckboxItem;
@@ -15,6 +17,7 @@ import phucdv.android.magicnote.data.noteitem.Note;
 import phucdv.android.magicnote.data.noteitem.NoteDao;
 import phucdv.android.magicnote.data.textitem.TextItem;
 import phucdv.android.magicnote.data.textitem.TextItemDao;
+import phucdv.android.magicnote.sync.DataSyncReceiver;
 import phucdv.android.magicnote.util.Constants;
 
 import androidx.annotation.NonNull;
@@ -23,6 +26,9 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 import androidx.sqlite.db.SupportSQLiteDatabase;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 @Database(entities = {
         Note.class,

@@ -37,4 +37,8 @@
         android:id="@+id/nav_loginActivity"
         android:name="phucdv.android.magicnote.authentic.LoginActivity"
         android:label="@string/login" />
+    <activity
+        android:id="@+id/nav_updatePasswordActivity"
+        android:name="phucdv.android.magicnote.authentic.UpdatePasswordActivity"
+        android:label="@string/change_pwd" />
 </navigation>

@@ -49,7 +49,7 @@ public class LoginActivity extends AppCompatActivity {
         String Password = password.getText().toString().trim();
 
         if (Email.isEmpty() || Password.isEmpty()) {
-            Toast.makeText(this, "Invalid inputs", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.invalid_inputs), Toast.LENGTH_SHORT).show();
         } else {
             progressBar.setVisibility(View.VISIBLE);
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
@@ -64,7 +64,7 @@ public class LoginActivity extends AppCompatActivity {
                                     progressBar.setVisibility(View.GONE);
                                     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
-                                    Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(LoginActivity.this, getString(R.string.login_success), Toast.LENGTH_LONG).show();
                                     Intent intent = new Intent();
                                     intent.setAction(DataSyncReceiver.ACTION_SYNC);
                                     intent.setComponent(new ComponentName(LoginActivity.this, DataSyncReceiver.class));
@@ -75,7 +75,7 @@ public class LoginActivity extends AppCompatActivity {
                                     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
                                     Toast.makeText(LoginActivity.this,
-                                            task.getException().getMessage(),
+                                            task.getException().getLocalizedMessage(),
                                             Toast.LENGTH_LONG).show();
                                 }
                             } catch (Exception e) {

@@ -38,7 +38,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
         String email=editText.getText().toString();
         if (TextUtils.isEmpty(email)) {
             Toast.makeText(this,
-                    "Please insert email address", Toast.LENGTH_SHORT).show();
+                    getString(R.string.pls_insert_email), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -54,14 +54,14 @@ public class ResetPasswordActivity extends AppCompatActivity {
                     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
                     Toast.makeText(ResetPasswordActivity.this,
-                            "Reset Password has been sent to your Email",
+                            getString(R.string.reset_pwd_has_been_send),
                             Toast.LENGTH_LONG).show();
                     finish();
                 }else {
                     progressBar.setVisibility(View.GONE);
                     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
-                    Toast.makeText(ResetPasswordActivity.this, task.getException().getMessage(),
+                    Toast.makeText(ResetPasswordActivity.this, task.getException().getLocalizedMessage(),
                             Toast.LENGTH_LONG).show();
                 }
             }

@@ -15,12 +15,14 @@ public class Label {
     private String name;
     private String uid;
     private long time_stamp_update;
+    private boolean enable;
 
-    public Label(String name, String uid) {
+    public Label(String name, String uid, boolean enable) {
         this.id = Calendar.getInstance().getTimeInMillis();
         this.name = name;
         this.uid = uid;
         this.time_stamp_update = Calendar.getInstance().getTimeInMillis();
+        this.enable = enable;
     }
 
     @Ignore
@@ -28,6 +30,7 @@ public class Label {
         super();
         this.id = Calendar.getInstance().getTimeInMillis();
         this.time_stamp_update = Calendar.getInstance().getTimeInMillis();
+        this.enable = true;
     }
 
     public long getId() {
@@ -60,5 +63,13 @@ public class Label {
 
     public void setTime_stamp_update(long time_stamp_update) {
         this.time_stamp_update = time_stamp_update;
+    }
+
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable = enable;
     }
 }

@@ -11,16 +11,19 @@ import java.util.List;
 
 @Dao
 public interface TextItemDao {
+    @Query("SELECT * FROM text_item")
+    public LiveData<List<TextItem>> getAll();
+
     @Query("SELECT * FROM text_item WHERE id = :id")
     public LiveData<List<TextItem>> getTextItemForId(long id);
 
     @Query("SELECT * FROM text_item WHERE parent_id = :parentId")
     public LiveData<List<TextItem>> getTextItemForParentId(long parentId);
 
-    @Insert (onConflict = OnConflictStrategy.IGNORE)
+    @Insert (onConflict = OnConflictStrategy.REPLACE)
     public Long insert(TextItem textItem);
 
-    @Insert (onConflict = OnConflictStrategy.IGNORE)
+    @Insert (onConflict = OnConflictStrategy.REPLACE)
     public Long[] insertAll(List<TextItem> textItems);
 
     @Query("DELETE FROM text_item WHERE id = :id")

@@ -64,12 +64,11 @@ public class EditNoteItemRecyclerViewAdapter extends RecyclerView.Adapter<Recycl
     public static final int STATE_DELETE = 2;
     public static final int STATE_NONE = 3;
 
-    private final SortedList<BaseItem> mItemSortedList;
     private final HashMap<BaseItem, Integer> mHashItem;
     private final HashMap<Integer, Integer> mTextCount = new HashMap<>();
     private final HashMap<Integer, Integer> mCheckboxtextCount = new HashMap<>();
     private int mNoneTextItemCount = 0;
-    private SortedList<BaseItem> mNewSortedList = new SortedList<BaseItem>(BaseItem.class, new SortedList.Callback<BaseItem>() {
+    private final SortedList<BaseItem> mItemSortedList = new SortedList<BaseItem>(BaseItem.class, new SortedList.Callback<BaseItem>() {
         @Override
         public int compare(BaseItem o1, BaseItem o2) {
             return (int) (o1.getOrder_in_parent() - o2.getOrder_in_parent());
@@ -87,6 +86,15 @@ public class EditNoteItemRecyclerViewAdapter extends RecyclerView.Adapter<Recycl
 
         @Override
         public boolean areItemsTheSame(BaseItem item1, BaseItem item2) {
+            if(item1 instanceof TextItem && item2 instanceof TextItem){
+                return item1.getId() == item2.getId();
+            }
+            if(item1 instanceof CheckboxItem && item2 instanceof CheckboxItem){
+                return item1.getId() == item2.getId();
+            }
+            if(item1 instanceof ImageItem && item2 instanceof ImageItem){
+                return item1.getId() == item2.getId();
+            }
             return false;
         }
 
@@ -109,9 +117,20 @@ public class EditNoteItemRecyclerViewAdapter extends RecyclerView.Adapter<Recycl
     private final Stack<HistoryItem> mPrevious = new Stack<>();
     private final Stack<HistoryItem> mFollowing = new Stack<>();
 
+    public void clearData(){
+        mItemSortedList.clear();
+        mHashItem.clear();
+        mFocusPosition = -1;
+        mIsItemNewAdd = false;
+        mPrevious.clear();
+        mFollowing.clear();
+        mCheckboxtextCount.clear();
+        mTextCount.clear();
+        mNoneTextItemCount = 0;
+    }
+
     public EditNoteItemRecyclerViewAdapter(Context context) {
         mHashItem = new HashMap<>();
-        mItemSortedList = mNewSortedList;
         mContext = context;
     }
 
@@ -127,42 +146,42 @@ public class EditNoteItemRecyclerViewAdapter extends RecyclerView.Adapter<Recycl
         final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         addItem(new CheckboxItem(Constants.UNKNOW_PARENT_ID, 0, isChecked, content,
-                firebaseUser != null ? firebaseUser.getUid() : null));
+                firebaseUser != null ? firebaseUser.getUid() : null, true));
     }
 
     public void addCheckItem(String content, boolean isChecked, int position){
         final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         addItem(new CheckboxItem(Constants.UNKNOW_PARENT_ID, 0, isChecked, content,
-                firebaseUser != null ? firebaseUser.getUid() : null), position);
+                firebaseUser != null ? firebaseUser.getUid() : null, true), position);
     }
 
     public void addTextItem(String content){
         final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         addItem(new TextItem(Constants.UNKNOW_PARENT_ID, 0, content,
-                firebaseUser != null ? firebaseUser.getUid() : null));
+                firebaseUser != null ? firebaseUser.getUid() : null, true));
     }
 
     public void addTextItem(String content, int position){
         final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         addItem(new TextItem(Constants.UNKNOW_PARENT_ID, 0, content,
-                firebaseUser != null ? firebaseUser.getUid() : null), position);
+                firebaseUser != null ? firebaseUser.getUid() : null, true), position);
     }
 
     public void addImageItem(String path){
         final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         addItem(new ImageItem(Constants.UNKNOW_PARENT_ID, 0, path,
-                firebaseUser != null ? firebaseUser.getUid() : null));
+                firebaseUser != null ? firebaseUser.getUid() : null, true));
     }
 
     public void addImageItem(String path, int position){
         final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         addItem(new ImageItem(Constants.UNKNOW_PARENT_ID, 0, path,
-                firebaseUser != null ? firebaseUser.getUid() : null), position);
+                firebaseUser != null ? firebaseUser.getUid() : null, true), position);
     }
 
     public void addItem(BaseItem item){

@@ -34,31 +34,23 @@ public class DataSyncReceiver extends BroadcastReceiver {
             case ACTION_SYNC_UP:
                 WorkContinuation continuation =
                         mWorkManager.beginUniqueWork(BackUpWorker.BACK_UP_WORKER_NAME,
-                                ExistingWorkPolicy.REPLACE,
+                                ExistingWorkPolicy.APPEND,
                                 OneTimeWorkRequest.from(BackUpWorker.class));
                 continuation.enqueue();
                 break;
             case ACTION_SYNC_DOWN:
                 continuation =
                         mWorkManager.beginUniqueWork(RestoreWorker.RESTORE_WORKER_NAME,
-                                ExistingWorkPolicy.REPLACE,
+                                ExistingWorkPolicy.APPEND,
                                 OneTimeWorkRequest.from(RestoreWorker.class));
                 continuation.enqueue();
                 break;
             case ACTION_SYNC:
-                Constraints constraints = new Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .setRequiresBatteryNotLow(true)
-                        .build();
-                PeriodicWorkRequest request =
-                        new PeriodicWorkRequest.Builder(AutoSyncWorker.class,
-                                AutoSyncWorker.SCHEDULE_TIME,
-                                TimeUnit.MINUTES)
-                                .setConstraints(constraints)
-                                .build();
-                mWorkManager.enqueueUniquePeriodicWork(AutoSyncWorker.AUTO_SYNC_WORKER_NAME,
-                        ExistingPeriodicWorkPolicy.REPLACE,
-                        request);
+                continuation =
+                        mWorkManager.beginUniqueWork(AutoSyncWorker.AUTO_SYNC_WORKER_NAME,
+                                ExistingWorkPolicy.APPEND,
+                                OneTimeWorkRequest.from(AutoSyncWorker.class));
+                continuation.enqueue();
                 break;
             case ACTION_CANCEL_ALL:
                 mWorkManager.cancelAllWork();

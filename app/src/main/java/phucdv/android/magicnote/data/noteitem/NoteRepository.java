@@ -97,6 +97,10 @@ public class NoteRepository {
         new AsyncTaskUtil.updateNoteAsyncTask(mNoteDao).execute(note);
     }
 
+    public void updateNote(Note note, AsyncResponse response){
+        new AsyncTaskUtil.updateNoteAsyncTaskWithResponse(mNoteDao, response).execute(note);
+    }
+
     public void updateListNote(List<Note> notes){
         new AsyncTaskUtil.updateListNoteAsyncTask(mNoteDao).execute(notes);
     }
