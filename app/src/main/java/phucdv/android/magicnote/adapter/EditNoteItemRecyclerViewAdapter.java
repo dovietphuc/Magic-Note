@@ -134,7 +134,32 @@ public class EditNoteItemRecyclerViewAdapter extends RecyclerView.Adapter<Recycl
         mContext = context;
     }
 
-    public void addValues(List<BaseItem> items) {
+    public <T> void addValues(List<BaseItem> items, Class<T> tClass) {
+        if(tClass.equals(TextItem.class)){
+            for(int i = 0; i < mItemSortedList.size(); i++){
+                BaseItem item = mItemSortedList.get(i);
+                if(item instanceof TextItem){
+                    mItemSortedList.removeItemAt(i);
+                    mHashItem.remove(item);
+                }
+            }
+        } else if(tClass.equals(CheckboxItem.class)){
+            for(int i = 0; i < mItemSortedList.size(); i++){
+                BaseItem item = mItemSortedList.get(i);
+                if(item instanceof CheckboxItem){
+                    mItemSortedList.removeItemAt(i);
+                    mHashItem.remove(item);
+                }
+            }
+        } else if(tClass.equals(ImageItem.class)){
+            for(int i = 0; i < mItemSortedList.size(); i++){
+                BaseItem item = mItemSortedList.get(i);
+                if(item instanceof ImageItem){
+                    mItemSortedList.removeItemAt(i);
+                    mHashItem.remove(item);
+                }
+            }
+        }
         for (BaseItem item : items) {
             mHashItem.put(item, STATE_NONE);
         }

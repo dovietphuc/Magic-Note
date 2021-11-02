@@ -87,13 +87,13 @@ public class RestoreWorker extends Worker {
                                 cursor.getString(cursor.getColumnIndex("full_text")),
                                 cursor.getString(cursor.getColumnIndex("uid")),
                                 cursor.getString(cursor.getColumnIndex("user_name")),
-                                cursor.getInt(cursor.getColumnIndex("enable")) == 1
-                        );
-                        if(note.getTime_last_update() == backUpNote.getTime_last_update()
+                                cursor.getInt(cursor.getColumnIndex("enable")) == 1);
+                        if(note.getTime_last_update() >= backUpNote.getTime_last_update()
                                 && note.getColor() == backUpNote.getColor()
                                 && note.isIs_pinned() == backUpNote.isIs_pinned()
                                 && note.isIs_archive() == backUpNote.isIs_archive()
-                                && note.isIs_deleted() == backUpNote.isIs_deleted()){
+                                && note.isIs_deleted() == backUpNote.isIs_deleted()
+                                && !note.isEnable()){
                             continue;
                         }
                     }
@@ -122,10 +122,21 @@ public class RestoreWorker extends Worker {
                 TextItemDao dao = db.textItemDao();
                 for(DataSnapshot child : snapshot.getChildren()){
                     TextItem item = child.getValue(TextItem.class);
-                    Cursor cursor = db.query("SELECT time_stamp_update FROM text_item WHERE id=" + item.getId(), null);
+                    Cursor cursor = db.query("SELECT * FROM text_item WHERE id=" + item.getId(), null);
                     if(cursor.moveToFirst()){
-                        long lastUpdate = cursor.getLong(0);
-                        if(lastUpdate >= item.getTime_stamp_update()){
+                        TextItem lastUpdate = new TextItem(
+                                cursor.getLong(cursor.getColumnIndex("parent_id")),
+                                cursor.getLong(cursor.getColumnIndex("order_in_parent")),
+                                cursor.getString(cursor.getColumnIndex("content")),
+                                cursor.getString(cursor.getColumnIndex("uid")),
+                                cursor.getInt(cursor.getColumnIndex("enable")) == 1
+                        );
+                        lastUpdate.setId(cursor.getLong(cursor.getColumnIndex("id")));
+                        lastUpdate.setTime_stamp_update(cursor.getLong(cursor.getColumnIndex("time_stamp_update")));
+
+                        if(lastUpdate.getTime_stamp_update() >= item.getTime_stamp_update()
+                                && !lastUpdate.isEnable()
+                                && lastUpdate.getOrder_in_parent() == item.getOrder_in_parent()){
                             continue;
                         }
                     }
@@ -149,10 +160,21 @@ public class RestoreWorker extends Worker {
                 CheckboxItemDao dao = db.checkboxItemDao();
                 for(DataSnapshot child : snapshot.getChildren()){
                     CheckboxItem item = child.getValue(CheckboxItem.class);
-                    Cursor cursor = db.query("SELECT time_stamp_update FROM checkbox_item WHERE id=" + item.getId(), null);
+                    Cursor cursor = db.query("SELECT * FROM checkbox_item WHERE id=" + item.getId(), null);
                     if(cursor.moveToFirst()){
-                        long lastUpdate = cursor.getLong(0);
-                        if(lastUpdate >= item.getTime_stamp_update()){
+                        CheckboxItem lastUpdate = new CheckboxItem(
+                                cursor.getLong(cursor.getColumnIndex("parent_id")),
+                                cursor.getLong(cursor.getColumnIndex("order_in_parent")),
+                                cursor.getInt(cursor.getColumnIndex("is_checked")) == 1,
+                                cursor.getString(cursor.getColumnIndex("content")),
+                                cursor.getString(cursor.getColumnIndex("uid")),
+                                cursor.getInt(cursor.getColumnIndex("enable")) == 1
+                        );
+                        lastUpdate.setId(cursor.getLong(cursor.getColumnIndex("id")));
+                        lastUpdate.setTime_stamp_update(cursor.getLong(cursor.getColumnIndex("time_stamp_update")));
+                        if(lastUpdate.getTime_stamp_update() >= item.getTime_stamp_update()
+                                && !lastUpdate.isEnable()
+                                && lastUpdate.getOrder_in_parent() == item.getOrder_in_parent()){
                             continue;
                         }
                     }
@@ -176,10 +198,20 @@ public class RestoreWorker extends Worker {
                 ImageItemDao dao = db.imageItemDao();
                 for(DataSnapshot child : snapshot.getChildren()){
                     ImageItem item = child.getValue(ImageItem.class);
-                    Cursor cursor = db.query("SELECT time_stamp_update FROM image_item WHERE id=" + item.getId(), null);
+                    Cursor cursor = db.query("SELECT * FROM image_item WHERE id=" + item.getId(), null);
                     if(cursor.moveToFirst()){
-                        long lastUpdate = cursor.getLong(0);
-                        if(lastUpdate >= item.getTime_stamp_update()){
+                        ImageItem lastUpdate = new ImageItem(
+                                cursor.getLong(cursor.getColumnIndex("order_in_parent")),
+                                cursor.getLong(cursor.getColumnIndex("parent_id")),
+                                cursor.getString(cursor.getColumnIndex("path")),
+                                cursor.getString(cursor.getColumnIndex("uid")),
+                                cursor.getInt(cursor.getColumnIndex("enable")) == 1
+                        );
+                        lastUpdate.setId(cursor.getLong(cursor.getColumnIndex("id")));
+                        lastUpdate.setTime_stamp_update(cursor.getLong(cursor.getColumnIndex("time_stamp_update")));
+                        if(lastUpdate.getTime_stamp_update() >= item.getTime_stamp_update()
+                                && !lastUpdate.isEnable()
+                                && lastUpdate.getOrder_in_parent() == item.getOrder_in_parent()){
                             continue;
                         }
                     }
@@ -224,10 +256,18 @@ public class RestoreWorker extends Worker {
                 LabelDao dao = db.labelDao();
                 for(DataSnapshot child : snapshot.getChildren()){
                     Label item = child.getValue(Label.class);
-                    Cursor cursor = db.query("SELECT time_stamp_update FROM label WHERE id=" + item.getId(), null);
+                    Cursor cursor = db.query("SELECT * FROM label WHERE id=" + item.getId(), null);
                     if(cursor.moveToFirst()){
-                        long lastUpdate = cursor.getLong(0);
-                        if(lastUpdate >= item.getTime_stamp_update()){
+                        Label lastUpdate = new Label(
+                                cursor.getString(cursor.getColumnIndex("name")),
+                                cursor.getString(cursor.getColumnIndex("uid")),
+                                cursor.getInt(cursor.getColumnIndex("enable")) == 1
+                        );
+                        lastUpdate.setId(cursor.getLong(cursor.getColumnIndex("id")));
+                        lastUpdate.setTime_stamp_update(cursor.getLong(cursor.getColumnIndex("time_stamp_update")));
+                        if(lastUpdate.getTime_stamp_update() >= item.getTime_stamp_update()
+                                && !lastUpdate.isEnable()
+                                && lastUpdate.getName() == item.getName()){
                             continue;
                         }
                     }
@@ -251,10 +291,18 @@ public class RestoreWorker extends Worker {
                 NoteLabelDao dao = db.noteLabelDao();
                 for(DataSnapshot child : snapshot.getChildren()){
                     NoteLabel item = child.getValue(NoteLabel.class);
-                    Cursor cursor = db.query("SELECT time_stamp_update FROM note_label WHERE id=" + item.getId(), null);
+                    Cursor cursor = db.query("SELECT * FROM note_label WHERE id=" + item.getId(), null);
                     if(cursor.moveToFirst()){
-                        long lastUpdate = cursor.getLong(0);
-                        if(lastUpdate >= item.getTime_stamp_update()){
+                        NoteLabel lastUpdate = new NoteLabel(
+                                cursor.getLong(cursor.getColumnIndex("note_id")),
+                                cursor.getLong(cursor.getColumnIndex("label_id")),
+                                cursor.getString(cursor.getColumnIndex("uid")),
+                                cursor.getInt(cursor.getColumnIndex("enable")) == 1
+                        );
+                        lastUpdate.setId(cursor.getLong(cursor.getColumnIndex("id")));
+                        lastUpdate.setTime_stamp_update(cursor.getLong(cursor.getColumnIndex("time_stamp_update")));
+                        if(lastUpdate.getTime_stamp_update() >= item.getTime_stamp_update()
+                                && !lastUpdate.isEnable()){
                             continue;
                         }
                     }

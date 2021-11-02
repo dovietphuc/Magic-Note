@@ -43,7 +43,6 @@ public class BackUpWorker extends Worker {
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference userRef = firebaseDatabase.getReference(firebaseUser.getUid());
-        userRef.removeValue();
 
         NoteRoomDatabase noteRoomDatabase = NoteRoomDatabase.getDatabase(getApplicationContext());
         backupNote(userRef, noteRoomDatabase);

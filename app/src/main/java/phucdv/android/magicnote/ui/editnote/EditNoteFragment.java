@@ -79,21 +79,21 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener, 
     protected Observer<List<TextItem>> mListTextItemObserver = new Observer<List<TextItem>>() {
         @Override
         public void onChanged(List<TextItem> textItems) {
-            mAdapter.addValues((List) textItems);
+            mAdapter.addValues((List) textItems, TextItem.class);
         }
     };
 
     protected Observer<List<CheckboxItem>> mListCheckboxItemObserver = new Observer<List<CheckboxItem>>() {
         @Override
         public void onChanged(List<CheckboxItem> checkboxItems) {
-            mAdapter.addValues((List) checkboxItems);
+            mAdapter.addValues((List) checkboxItems, CheckboxItem.class);
         }
     };
 
     protected Observer<List<ImageItem>> mListImageItemObserver = new Observer<List<ImageItem>>() {
         @Override
         public void onChanged(List<ImageItem> imageItems) {
-            mAdapter.addValues((List) imageItems);
+            mAdapter.addValues((List) imageItems, ImageItem.class);
         }
     };
 
@@ -252,7 +252,7 @@ public class EditNoteFragment extends Fragment implements View.OnClickListener, 
         if (getArguments() != null) {
             long parentId = getArguments().getLong(Constants.ARG_PARENT_ID, Constants.UNKNOW_PARENT_ID);
             if (parentId == Constants.UNKNOW_PARENT_ID) {
-                mAdapter.addValues(new ArrayList<>());
+                mAdapter.addValues(new ArrayList<>(), Object.class);
             } else {
                 mViewModel.getParentId().setValue(parentId);
             }
