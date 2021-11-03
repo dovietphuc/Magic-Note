@@ -3,7 +3,7 @@ Bài tập lớn môn Lập trình cho thiết bị di động nâng cao <br />
 Đỗ Việt Phúc - 1810A04<br />
 Vũ Thị Linh - 1810A04<br />
 1 số hình ảnh demo:<br />
-<div style="display: grid; grid-template-columns: auto auto auto;">
+<div align="center">
   <img src="preview/1.png"/>
   <img src="preview/2.png"/>
   <img src="preview/3.png"/>
